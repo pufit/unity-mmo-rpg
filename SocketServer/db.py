@@ -1,3 +1,6 @@
+#!c:\Python34\python.exe
+# -*- coding: utf-8 -*-
+
 from config import *
 from channel import Channel
 import json
@@ -14,7 +17,7 @@ class Db:
         self.handlers = []
 
         self.main_channel = Channel('main')
-
+    
     def db_update(self):
         with self.lock:
             with open(USERS, 'r', encoding='utf-8') as f:

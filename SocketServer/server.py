@@ -1,23 +1,26 @@
-import socket
+
+from autobahn.asyncio.websocket import WebSocketServerProtocol, \
+    WebSocketServerFactory
+
 import json
-import asyncore
 import commands
 from config import *
-from db import Db
-import threading
 import logging
-import gzip
+import asyncio
+import threading
 import traceback
+import gzip
+from db import Db
 import game.game
-
 
 lock = threading.Lock()
 db = Db(lock)
 
 
-class Handler(asyncore.dispatcher_with_send):
-    def __init__(self, sock):
-        super(Handler, self).__init__(sock)
+class Handler(WebSocketServerProtocol):
+    def __init__(self):
+        WebSocketServerProtocol.__init__(self)
+        self.count = 0
         self.temp = db
         self.user = None
         self.user_id = None
@@ -26,18 +29,14 @@ class Handler(asyncore.dispatcher_with_send):
         self.user_rights = 0
         self.addr = None
         self.typing = False
-        self.logger = logger
+        self.logger = logging.getLogger('WSServer')
         self.player_info = {}
         self.game = main_game
         self.me = None
 
-    def handle_close(self):
-        commands.leave(self, None)
-        if self.channel:
-            self.channel.leave(self)
-        self.temp.handlers.remove(self)
-        self.logger.info('%s Disconnect' % (self.addr,))
-        self.close()
+    def ws_send(self, message):
+        data = gzip.compress(message.encode('utf-8'))
+        self.sendMessage(data, isBinary=True)
 
     def get_information(self):
         return {
@@ -47,15 +46,24 @@ class Handler(asyncore.dispatcher_with_send):
             'player_info': self.player_info,
         }
 
-    def handle_read(self):
-        data = self.recv(BUFFERSIZE)
-        if data == b'':
-            return
+    def onConnect(self, request):
+        self.temp.handlers.append(self)
+        self.addr = request.peer[4:]
+        self.logger.info('%s Connection' % self.addr)
+
+    def onOpen(self):
+        self.ws_send(json.dumps({
+            'type': 'welcome',
+            'data': {
+                'message': 'online-games websocket server WELCOME!',
+                'version': VERSION
+            }
+        }))
+        self.channel.join(self)
+
+    def onMessage(self, payload, is_binary):
         try:
-            if GZIP:
-                message = json.loads(gzip.decompress(data).decode('utf-8'))
-            else:
-                message = json.loads(data.decode('utf-8'))
+            message = json.loads(gzip.decompress(payload).decode('utf-8'))
         except:
             message = commands.error(self, None)
         if message.get('type') and not (message.get('data') is None):
@@ -63,14 +71,12 @@ class Handler(asyncore.dispatcher_with_send):
             message_type = message_type.replace('__', '')
             message_type = message_type.lower()
             data = message.get('data')
-            self.logger.info('%s Request %s  %s' % (self.addr, message_type, data))
             try:
-                resp = getattr(commands, message_type)(self, data)
+                resp = commands.__getattribute__(message_type)(self, data)
             except Exception as ex:
                 resp = {'type': message_type + '_error', 'data': str(ex)}
-                self.logger.log_error(self.addr, message_type, data, str(ex))
-                if DEBUG:
-                    traceback.print_exc()
+                self.logger.error('%s Error %s %s %s' % (self.addr, message_type, data, str(ex)))
+                traceback.print_exc()
         elif message.get('action'):
             action = message['action']
             action = action.replace('__', '')
@@ -80,44 +86,21 @@ class Handler(asyncore.dispatcher_with_send):
                 resp = self.me.action(action, data)
             except Exception as ex:
                 resp = {'type': action + '_error', 'data': str(ex)}
-                self.logger.log_error(self.addr, action, data, str(ex))
-                if DEBUG:
-                    traceback.print_exc()
+                self.logger.error('%s Error %s %s %s' % (self.addr, action, data, str(ex)))
+                traceback.print_exc()
         else:
             resp = commands.error(None)
         if message.get('id'):
             resp['id'] = message['id']
         if resp:
-            self.logger.info('%s Response %s  %s' % (self.addr, resp['type'], resp['data']))
-            self.send(json.dumps(resp))
+            self.ws_send(json.dumps(resp))
 
-
-class Server(asyncore.dispatcher):
-
-    def __init__(self, host, port):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.set_reuse_addr()
-        self.bind((host, port))
-        self.listen(SLOTS)
-        print('Start %s:%s' % (IP, PORT))
-
-    def handle_accept(self):
-        pair = self.accept()
-        if pair is None:
-            return
-        else:
-            sock, addr = pair
-            logger.info('%s Connection' % repr(addr))
-            handler = Handler(sock)
-            handler.send(json.dumps({
-                'type': 'welcome',
-                'data': {
-                    'message': 'online-games websocket server WELCOME!',
-                    'version': VERSION
-                }
-            }))
-            handler.channel.join(handler)
+    def onClose(self, *args):
+        commands.leave(self, None)
+        if self.channel:
+            self.channel.leave(self)
+        self.temp.handlers.remove(self)
+        self.logger.info('%s Disconnect' % (self.addr,))
 
 
 class Thread(threading.Thread):
@@ -126,31 +109,34 @@ class Thread(threading.Thread):
         self.start()
 
 
-class Logger(logging.Logger):
-    def __init__(self, debug=True):
-        super(Logger, self).__init__('SocketServer')
-        form = '[%(asctime)s]  %(levelname)s: %(message)s'
-        logging.basicConfig(level=logging.INFO, format=form)
-        log_handler = logging.FileHandler('logs/log.txt')
-        log_handler.setFormatter(logging.Formatter(form))
-        self.addHandler(log_handler)
-        self.DEBUG = debug
+def run(secret_key):
+    form = '[%(asctime)s]  %(levelname)s: %(message)s'
+    logger = logging.getLogger("WSServer")
+    logging.basicConfig(level=logging.INFO, format=form)
 
-    def info(self, msg, *args, **kwargs):
-        if not self.DEBUG:
-            return
-        super().info(msg, *args, **kwargs)
+    log_handler = logging.FileHandler('logs/log.txt')
+    log_handler.setFormatter(logging.Formatter(form))
 
-    def log_error(self, addr, message_type, data, ex):
-        self.error('%s Error %s  %s  %s' % (addr, message_type, data, ex))
+    logger.addHandler(log_handler)
+    logger.info('Start %s:%s' % (IP, PORT))
+
+    Handler.secret_key = secret_key
+    factory = WebSocketServerFactory(u"ws://%s:%s" % (IP, PORT))
+    factory.protocol = Handler
+
+    loop = asyncio.get_event_loop()
+    coro = loop.create_server(factory, IP, PORT)
+    loop.run_until_complete(coro)
+
+    thread = Thread(loop.run_forever)
+    return thread
 
 
 if __name__ == '__main__':
-    logger = Logger(DEBUG)
+    sk = 'shouldintermittentvengeancearmagainhisredrighthandtoplagueus'
     main_game = game.game.Game(db.main_channel)
     main_game.start()
-    server = Server(IP, PORT)
-    Thread(asyncore.loop())
+    run(sk)
     while True:
         try:
             out = eval(input())

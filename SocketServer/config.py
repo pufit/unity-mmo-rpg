@@ -1,14 +1,12 @@
+
+VERSION = '1.0a'
+
+
 # -------------DB------------- #
 USERS = 'db/users.json'
 # ---------------------------- #
 
-# -----------SERVER----------- #
+# ----------WSSERVER---------- #
 PORT = 8000
-IP = 'localhost'
-SLOTS = 1000
-BUFFERSIZE = 8000
-GZIP = False
-DEBUG = False
+IP = '0.0.0.0'
 # ---------------------------- #
-
-VERSION = '1.0a'

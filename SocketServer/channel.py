@@ -1,7 +1,4 @@
 import json
-import logging
-
-logger = logging.getLogger('WSServer')
 
 
 class Channel:
@@ -19,11 +16,12 @@ class Channel:
             'data': handler.get_information()
         })
 
-    def send(self, data, log=True):
-        if log:
-            logger.info('%s Ответ %s  %s' % (self.name, data['type'], data['data']))
+    def send(self, data):
         for handler in self.handlers:
-            handler.send(json.dumps(data))
+            try:
+                handler.ws_send(json.dumps(data))
+            except Exception as ex:
+                print(ex)
 
     def send_pm(self, data, users):
         """
@@ -32,15 +30,14 @@ class Channel:
         :param users: list or str
         :return: None
         """
-        logger.info('%s Ответ пользователям %s: %s  %s' % (self.name, users, data['type'], data['data']))
         if type(users) == list:
             for handler in self.handlers:
                 if handler.user in users:
-                    handler.send(json.dumps(data))
+                    handler.ws_send(json.dumps(data))
         elif type(users) == str:
             for handler in self.handlers:
                 if handler.user == users:
-                    handler.send(json.dumps(data))
+                    handler.ws_send(json.dumps(data))
                     break
 
     def leave(self, handler):
