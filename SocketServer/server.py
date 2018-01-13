@@ -63,7 +63,7 @@ class Handler(asyncore.dispatcher_with_send):
             message_type = message_type.replace('__', '')
             message_type = message_type.lower()
             data = message.get('data')
-            self.logger.req(self.addr, message_type, data)
+            self.logger.info('%s Request %s  %s' % (self.addr, message_type, data))
             try:
                 resp = getattr(commands, message_type)(self, data)
             except Exception as ex:
@@ -88,7 +88,7 @@ class Handler(asyncore.dispatcher_with_send):
         if message.get('id'):
             resp['id'] = message['id']
         if resp:
-            self.logger.resp(self.addr, resp['type'], resp['data'])
+            self.logger.info('%s Response %s  %s' % (self.addr, resp['type'], resp['data']))
             self.send(json.dumps(resp))
 
 
@@ -109,7 +109,15 @@ class Server(asyncore.dispatcher):
         else:
             sock, addr = pair
             logger.info('%s Connection' % repr(addr))
-            _ = Handler(sock)
+            handler = Handler(sock)
+            handler.send(json.dumps({
+                'type': 'welcome',
+                'data': {
+                    'message': 'online-games websocket server WELCOME!',
+                    'version': VERSION
+                }
+            }))
+            handler.channel.join(handler)
 
 
 class Thread(threading.Thread):
@@ -128,15 +136,10 @@ class Logger(logging.Logger):
         self.addHandler(log_handler)
         self.DEBUG = debug
 
-    def resp(self, addr, message_type, data):
+    def info(self, msg, *args, **kwargs):
         if not self.DEBUG:
             return
-        self.info('%s Response %s  %s' % (addr, message_type, data))
-
-    def req(self, addr, message_type, data):
-        if not self.DEBUG:
-            return
-        self.info('%s Request %s  %s' % (addr, message_type, data))
+        super().info(msg, *args, **kwargs)
 
     def log_error(self, addr, message_type, data, ex):
         self.error('%s Error %s  %s  %s' % (addr, message_type, data, ex))
