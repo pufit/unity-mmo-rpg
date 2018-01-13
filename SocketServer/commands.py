@@ -55,10 +55,7 @@ def __auth(self, user, session=None, auth_type='auth_ok'):
     if not session:
         session = sessions.encode_flask_cookie(self.secret_key, resp['data'])
     resp['data']['session'] = session
-    self.channel.send({
-        'type': 'user_logged_in',
-        'data': self.get_information()
-    })
+    self.channel.join(self)
     self.me = self.game.add_player(self)
     return resp
 
@@ -147,7 +144,6 @@ def start_typing(self, _):
         raise Exception('You are already typing')
     self.typing = True
     self.channel.send({'type': 'user_start_typing', 'data': {'user': self.user, 'user_id': self.user_id}})
-    return {'type': 'start_typing_ok', 'data': ''}
 
 
 @perms_check(1)
@@ -156,7 +152,6 @@ def stop_typing(self, _):
         raise Exception('You are not typing')
     self.typing = False
     self.channel.send({'type': 'user_stop_typing', 'data': {'user': self.user, 'user_id': self.user_id}})
-    return {'type': 'stop_typing_ok', 'data': ''}
 
 
 @perms_check(0)
@@ -178,7 +173,6 @@ def send_message(self, data):
         }
     }
     self.channel.send(resp)
-    return {'type': 'send_ok', 'data': ''}
 
 
 @perms_check(0)
@@ -199,7 +193,6 @@ def get_channel_information(self, _):
                 'users': users
             }
         }
-    return {'type': 'channel_information', 'data': ''}
 
 
 @perms_check(0)
@@ -221,7 +214,6 @@ def leave(self, _):
     self.me = None
     self.game = None
     self.temp.db_save_all()
-    return {'type': 'leave_ok', 'data': ''}
 
 
 @perms_check(0)
