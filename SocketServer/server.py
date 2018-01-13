@@ -1,12 +1,14 @@
+from autobahn.twisted.websocket import WebSocketServerProtocol, \
+    WebSocketServerFactory, \
+    listenWS
 
-from autobahn.asyncio.websocket import WebSocketServerProtocol, \
-    WebSocketServerFactory
+from autobahn.websocket.compress import PerMessageDeflateOffer, \
+    PerMessageDeflateOfferAccept
 
 import json
 import commands
 from config import *
 import logging
-import asyncio
 import threading
 import traceback
 import gzip
@@ -20,7 +22,7 @@ db = Db(lock)
 class Handler(WebSocketServerProtocol):
     def __init__(self):
         WebSocketServerProtocol.__init__(self)
-        self.count = 0
+        self.secret_key = ''
         self.temp = db
         self.user = None
         self.user_id = None
@@ -35,8 +37,12 @@ class Handler(WebSocketServerProtocol):
         self.me = None
 
     def ws_send(self, message):
-        data = gzip.compress(message.encode('utf-8'))
-        self.sendMessage(data, isBinary=True)
+        if GZIP:
+            data = gzip.compress(message.encode('utf-8'))
+            self.sendMessage(data, isBinary=True)
+        else:
+            data = message.encode('utf-8')
+            self.sendMessage(data)
 
     def get_information(self):
         return {
@@ -63,8 +69,11 @@ class Handler(WebSocketServerProtocol):
 
     def onMessage(self, payload, is_binary):
         try:
-            message = json.loads(gzip.decompress(payload).decode('utf-8'))
-        except:
+            if GZIP:
+                message = json.loads(gzip.decompress(payload).decode('utf-8'))
+            else:
+                message = json.loads(payload).decode('utf-8')
+        except (ValueError, UnicodeDecodeError):
             message = commands.error(self, None)
         if message.get('type') and not (message.get('data') is None):
             message_type = message['type']
@@ -72,7 +81,7 @@ class Handler(WebSocketServerProtocol):
             message_type = message_type.lower()
             data = message.get('data')
             try:
-                resp = commands.__getattribute__(message_type)(self, data)
+                resp = getattr(commands, message_type)(self, data)
             except Exception as ex:
                 resp = {'type': message_type + '_error', 'data': str(ex)}
                 self.logger.error('%s Error %s %s %s' % (self.addr, message_type, data, str(ex)))
@@ -103,33 +112,26 @@ class Handler(WebSocketServerProtocol):
         self.logger.info('%s Disconnect' % (self.addr,))
 
 
-class Thread(threading.Thread):
-    def __init__(self, t, *args):
-        threading.Thread.__init__(self, target=t, args=args)
-        self.start()
-
-
 def run(secret_key):
     form = '[%(asctime)s]  %(levelname)s: %(message)s'
     logger = logging.getLogger("WSServer")
     logging.basicConfig(level=logging.INFO, format=form)
-
     log_handler = logging.FileHandler('logs/log.txt')
     log_handler.setFormatter(logging.Formatter(form))
-
     logger.addHandler(log_handler)
     logger.info('Start %s:%s' % (IP, PORT))
 
-    Handler.secret_key = secret_key
     factory = WebSocketServerFactory(u"ws://%s:%s" % (IP, PORT))
+    Handler.secret_key = secret_key
     factory.protocol = Handler
 
-    loop = asyncio.get_event_loop()
-    coro = loop.create_server(factory, IP, PORT)
-    loop.run_until_complete(coro)
+    def accept(offers):
+        for offer in offers:
+            if isinstance(offer, PerMessageDeflateOffer):
+                return PerMessageDeflateOfferAccept(offer)
 
-    thread = Thread(loop.run_forever)
-    return thread
+    factory.setProtocolOptions(perMessageCompressionAccept=accept)
+    listenWS(factory)
 
 
 if __name__ == '__main__':

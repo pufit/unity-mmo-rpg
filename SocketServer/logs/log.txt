@@ -1,10 +1,347 @@
-[2018-01-12 17:08:40,992]  INFO: Start localhost:8000
-[2018-01-12 17:10:32,131]  INFO: Start localhost:8000
-[2018-01-12 17:11:08,567]  INFO: Start localhost:8000
-[2018-01-12 17:12:18,547]  INFO: Start localhost:8000
-[2018-01-12 17:12:26,928]  INFO: Start localhost:8000
-[2018-01-12 17:12:44,694]  INFO: Start localhost:8000
-[2018-01-12 17:14:37,233]  INFO: Start localhost:8000
-[2018-01-12 17:17:37,805]  INFO: Start localhost:8000
-[2018-01-12 17:19:06,889]  INFO: ('127.0.0.1', 44453) Connection
-[2018-01-12 17:19:52,816]  INFO: ('127.0.0.1', 44459) Connection
+[2018-01-08 09:24:22,261]  INFO: Start 0.0.0.0:8000
+[2018-01-08 09:24:33,808]  INFO: 10.42.0.1:60198 Connection
+[2018-01-08 09:24:44,828]  INFO: 10.42.0.1:60198 Disconnect
+[2018-01-08 09:27:13,636]  INFO: 10.42.0.1:60199 Connection
+[2018-01-08 09:27:19,934]  INFO: 10.42.0.1:60199 Disconnect
+[2018-01-08 09:28:07,870]  INFO: 10.42.0.1:60200 Connection
+[2018-01-08 09:28:15,638]  INFO: 10.42.0.1:60200 Disconnect
+[2018-01-08 09:28:30,010]  INFO: 10.42.0.1:60201 Connection
+[2018-01-08 09:28:35,229]  INFO: 10.42.0.1:60201 Disconnect
+[2018-01-08 09:30:01,560]  INFO: 10.42.0.1:60203 Connection
+[2018-01-08 09:31:30,448]  INFO: 10.42.0.1:60203 Disconnect
+[2018-01-08 09:32:20,433]  INFO: Start 0.0.0.0:8000
+[2018-01-08 09:32:30,408]  INFO: Start 0.0.0.0:8000
+[2018-01-08 09:32:32,461]  INFO: 10.42.0.1:60206 Connection
+[2018-01-08 09:33:06,472]  INFO: Start 0.0.0.0:8000
+[2018-01-08 09:33:09,435]  INFO: 10.42.0.1:60207 Connection
+[2018-01-08 09:33:53,304]  INFO: 10.42.0.1:60207 Disconnect
+[2018-01-08 09:37:01,808]  INFO: Start 0.0.0.0:8000
+[2018-01-08 09:37:04,489]  INFO: 10.42.0.1:60235 Connection
+[2018-01-08 09:37:31,448]  INFO: 10.42.0.1:60235 Disconnect
+[2018-01-08 09:37:55,808]  INFO: 10.42.0.1:60236 Connection
+[2018-01-08 09:38:00,932]  INFO: 10.42.0.1:60236 Disconnect
+[2018-01-08 09:38:35,945]  INFO: 10.42.0.1:60237 Connection
+[2018-01-08 09:38:49,064]  INFO: 10.42.0.1:60237 Disconnect
+[2018-01-08 09:38:53,970]  INFO: 10.42.0.1:60238 Connection
+[2018-01-08 09:39:11,826]  INFO: 10.42.0.1:60238 Disconnect
+[2018-01-08 09:40:32,295]  INFO: 10.42.0.1:60239 Connection
+[2018-01-08 09:40:42,930]  INFO: 10.42.0.1:60239 Disconnect
+[2018-01-08 09:40:50,512]  INFO: 10.42.0.1:60240 Connection
+[2018-01-08 09:41:07,108]  INFO: 10.42.0.1:60240 Disconnect
+[2018-01-08 09:41:15,163]  INFO: 10.42.0.1:60241 Connection
+[2018-01-08 09:41:23,032]  INFO: 10.42.0.1:60241 Disconnect
+[2018-01-08 09:41:39,179]  INFO: 10.42.0.1:60242 Connection
+[2018-01-08 09:41:57,545]  INFO: 10.42.0.1:60242 Disconnect
+[2018-01-08 09:42:15,889]  INFO: 10.42.0.1:60243 Connection
+[2018-01-08 09:42:30,764]  INFO: 10.42.0.1:60243 Disconnect
+[2018-01-08 09:42:32,358]  INFO: 10.42.0.1:60244 Connection
+[2018-01-08 09:42:37,623]  INFO: 10.42.0.1:60244 Disconnect
+[2018-01-08 09:42:57,028]  INFO: 10.42.0.1:60245 Connection
+[2018-01-08 09:43:00,714]  INFO: 10.42.0.1:60245 Disconnect
+[2018-01-08 09:43:28,779]  INFO: 10.42.0.1:60248 Connection
+[2018-01-08 09:44:15,102]  INFO: 10.42.0.1:60248 Disconnect
+[2018-01-08 09:44:32,204]  INFO: 10.42.0.1:60260 Connection
+[2018-01-08 09:45:23,857]  INFO: 10.42.0.1:60260 Disconnect
+[2018-01-08 09:45:26,045]  INFO: 10.42.0.1:60263 Connection
+[2018-01-08 09:47:00,622]  INFO: 10.42.0.1:60263 Disconnect
+[2018-01-08 09:47:02,725]  INFO: 10.42.0.1:60283 Connection
+[2018-01-08 09:47:42,612]  INFO: 10.42.0.1:60283 Disconnect
+[2018-01-08 09:47:44,604]  INFO: 10.42.0.1:60286 Connection
+[2018-01-08 09:48:07,465]  INFO: 10.42.0.1:60286 Disconnect
+[2018-01-08 09:48:09,830]  INFO: 10.42.0.1:60287 Connection
+[2018-01-08 09:48:43,419]  INFO: 10.42.0.1:60287 Disconnect
+[2018-01-08 09:48:44,646]  INFO: 10.42.0.1:60288 Connection
+[2018-01-08 09:48:57,450]  INFO: 10.42.0.1:60288 Disconnect
+[2018-01-08 09:48:58,895]  INFO: 10.42.0.1:60289 Connection
+[2018-01-08 09:49:14,576]  INFO: 10.42.0.1:60289 Disconnect
+[2018-01-08 09:50:43,950]  INFO: 10.42.0.1:60290 Connection
+[2018-01-08 09:50:49,587]  INFO: 10.42.0.1:60290 Disconnect
+[2018-01-08 09:51:59,133]  INFO: 10.42.0.1:60291 Connection
+[2018-01-08 09:52:07,210]  INFO: 127.0.0.1:11855 Connection
+[2018-01-08 09:52:22,380]  INFO: 10.42.0.1:60291 Disconnect
+[2018-01-08 09:52:23,661]  INFO: 10.42.0.1:60292 Connection
+[2018-01-08 09:52:44,727]  INFO: 10.42.0.1:60292 Disconnect
+[2018-01-08 09:52:46,286]  INFO: 10.42.0.1:60293 Connection
+[2018-01-08 09:52:51,913]  INFO: 10.42.0.1:60293 Disconnect
+[2018-01-08 09:53:29,337]  INFO: 10.42.0.1:60294 Connection
+[2018-01-08 09:53:35,836]  INFO: 10.42.0.1:60294 Disconnect
+[2018-01-08 09:54:03,687]  INFO: 10.42.0.1:60297 Connection
+[2018-01-08 09:54:13,578]  INFO: 10.42.0.1:60297 Disconnect
+[2018-01-08 09:54:24,503]  INFO: 10.42.0.1:60298 Connection
+[2018-01-08 09:54:37,916]  INFO: 10.42.0.1:60298 Disconnect
+[2018-01-08 09:54:52,933]  INFO: 10.42.0.1:60299 Connection
+[2018-01-08 09:54:58,601]  INFO: 10.42.0.1:60299 Disconnect
+[2018-01-08 09:55:47,679]  INFO: 10.42.0.1:60300 Connection
+[2018-01-08 09:55:51,101]  INFO: 10.42.0.1:60300 Disconnect
+[2018-01-08 09:58:00,808]  INFO: 10.42.0.1:60301 Connection
+[2018-01-08 09:58:21,011]  INFO: 10.42.0.1:60301 Disconnect
+[2018-01-08 09:58:51,194]  INFO: 10.42.0.1:60302 Connection
+[2018-01-08 09:59:04,099]  INFO: 10.42.0.1:60302 Disconnect
+[2018-01-08 09:59:25,544]  INFO: 10.42.0.1:60303 Connection
+[2018-01-08 10:00:02,084]  INFO: 10.42.0.1:60303 Disconnect
+[2018-01-08 10:00:31,225]  INFO: 10.42.0.1:60304 Connection
+[2018-01-08 10:01:11,358]  INFO: 127.0.0.1:11855 Disconnect
+[2018-01-08 10:01:42,223]  INFO: 127.0.0.1:11905 Connection
+[2018-01-08 10:02:22,382]  ERROR: 127.0.0.1:11905 Error reg {'user': 'test', 'password': '1234'} object of type 'NoneType' has no len()
+[2018-01-08 10:02:39,306]  INFO: 127.0.0.1:11911 Connection
+[2018-01-08 10:03:01,105]  INFO: 127.0.0.1:11905 Disconnect
+[2018-01-08 10:03:01,121]  ERROR: 127.0.0.1:11911 Error auth {'user': 'test', 'password': '1234', 'id': '319d06d5-dda7-4057-949b-29ee7d61ebd3'} object of type 'NoneType' has no len()
+[2018-01-08 10:04:21,009]  INFO: 10.42.0.1:60304 Disconnect
+[2018-01-08 10:04:26,072]  INFO: 10.42.0.1:60305 Connection
+[2018-01-08 10:05:26,363]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:05:30,293]  INFO: 10.42.0.1:60306 Connection
+[2018-01-08 10:05:32,786]  INFO: 127.0.0.1:11915 Connection
+[2018-01-08 10:07:26,210]  INFO: 10.42.0.1:60306 Disconnect
+[2018-01-08 10:07:31,107]  INFO: 10.42.0.1:60307 Connection
+[2018-01-08 10:07:57,918]  INFO: 10.42.0.1:60307 Disconnect
+[2018-01-08 10:08:58,572]  INFO: 10.42.0.1:60308 Connection
+[2018-01-08 10:11:08,369]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:12:25,944]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:12:26,648]  INFO: 10.42.0.1:60310 Connection
+[2018-01-08 10:14:27,584]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:14:33,522]  INFO: 10.42.0.1:60311 Connection
+[2018-01-08 10:18:42,634]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:18:53,507]  INFO: 10.42.0.1:60322 Connection
+[2018-01-08 10:20:09,440]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:20:14,744]  INFO: 10.42.0.1:60323 Connection
+[2018-01-08 10:21:29,839]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:21:35,933]  INFO: 10.42.0.1:60328 Connection
+[2018-01-08 10:21:46,035]  INFO: 10.42.0.1:60328 Disconnect
+[2018-01-08 10:23:40,410]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:23:42,176]  INFO: 10.42.0.1:60329 Connection
+[2018-01-08 10:25:02,450]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:25:32,967]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:25:42,548]  INFO: 127.0.0.1:12026 Connection
+[2018-01-08 10:28:47,200]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:28:48,966]  INFO: 127.0.0.1:12051 Connection
+[2018-01-08 10:32:04,232]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:32:08,308]  INFO: 10.42.0.1:60332 Connection
+[2018-01-08 10:33:14,078]  INFO: 127.0.0.1:12084 Connection
+[2018-01-08 10:33:17,971]  INFO: 10.42.0.1:60332 Disconnect
+[2018-01-08 10:33:30,569]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,584]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,600]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,631]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,647]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,694]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,725]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,740]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,772]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,803]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,819]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,819]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,850]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,881]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,912]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,928]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,959]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:30,990]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,022]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,053]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,069]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,115]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,162]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,178]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,209]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,256]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,287]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,334]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,350]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,381]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,428]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,459]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,459]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,475]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,490]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,506]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,522]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,537]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,537]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,583]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,601]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,624]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,639]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,655]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,671]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,702]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,718]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,733]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,749]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,780]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,796]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,827]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,827]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,858]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,858]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,889]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,921]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,936]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,936]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,936]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,952]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:31,999]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,061]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,093]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,093]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,108]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,124]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,124]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,124]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,139]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,171]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,186]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,186]  ERROR: 10.42.0.1:60332 Error left  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,186]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,264]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,264]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,264]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,296]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,311]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,327]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,343]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,374]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,389]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,405]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,421]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,468]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:32,483]  ERROR: 10.42.0.1:60332 Error up  'NoneType' object has no attribute 'action'
+[2018-01-08 10:33:41,617]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:33:45,273]  INFO: 127.0.0.1:12092 Connection
+[2018-01-08 10:33:46,211]  INFO: 10.42.0.1:60333 Connection
+[2018-01-08 10:33:52,025]  ERROR: 127.0.0.1:12092 Error auth {'user': 'test', 'password': '1234', 'id': 'bbe90481-f017-4847-ac4d-3cf373f6c824'} 'NoneType' object is not subscriptable
+[2018-01-08 10:37:51,626]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:37:56,395]  INFO: 127.0.0.1:12123 Connection
+[2018-01-08 10:38:06,210]  INFO: 10.42.0.1:60334 Connection
+[2018-01-08 10:38:41,108]  INFO: 10.42.0.1:60334 Disconnect
+[2018-01-08 10:38:42,894]  INFO: 10.42.0.1:60335 Connection
+[2018-01-08 10:39:48,594]  INFO: 10.42.0.1:60335 Disconnect
+[2018-01-08 10:39:50,234]  INFO: 10.42.0.1:60336 Connection
+[2018-01-08 10:41:27,269]  INFO: 10.42.0.1:60336 Disconnect
+[2018-01-08 10:41:28,645]  INFO: 10.42.0.1:60337 Connection
+[2018-01-08 10:42:33,389]  INFO: 10.42.0.1:60337 Disconnect
+[2018-01-08 10:49:09,440]  INFO: Start 0.0.0.0:8000
+[2018-01-08 10:49:15,373]  INFO: 127.0.0.1:12230 Connection
+[2018-01-08 10:49:38,875]  INFO: 127.0.0.1:12230 Disconnect
+[2018-01-08 10:49:57,546]  INFO: 127.0.0.1:12231 Connection
+[2018-01-08 10:50:07,988]  ERROR: 127.0.0.1:12231 Error auth {'user': 'test', 'password': '1234', 'id': '20b63ad6-d0ea-4043-8426-04b1d4b0f330'} You are already logged in
+[2018-01-08 10:50:41,666]  INFO: 127.0.0.1:12231 Disconnect
+[2018-01-08 10:51:40,101]  INFO: 127.0.0.1:12232 Connection
+[2018-01-08 10:51:57,673]  INFO: 10.42.0.1:60343 Connection
+[2018-01-08 10:52:26,856]  INFO: 127.0.0.1:12232 Disconnect
+[2018-01-08 10:52:36,482]  INFO: 127.0.0.1:12233 Connection
+[2018-01-08 10:53:01,844]  INFO: 127.0.0.1:12233 Disconnect
+[2018-01-08 10:53:20,273]  INFO: 127.0.0.1:12238 Connection
+[2018-01-08 10:54:52,440]  INFO: 127.0.0.1:12238 Disconnect
+[2018-01-08 10:54:56,954]  INFO: 127.0.0.1:12243 Connection
+[2018-01-08 10:57:09,801]  INFO: 127.0.0.1:12243 Disconnect
+[2018-01-08 10:57:49,823]  INFO: 127.0.0.1:12244 Connection
+[2018-01-08 10:58:17,797]  INFO: 127.0.0.1:12244 Disconnect
+[2018-01-08 10:58:36,971]  INFO: 127.0.0.1:12245 Connection
+[2018-01-08 10:58:57,512]  INFO: 127.0.0.1:12245 Disconnect
+[2018-01-08 10:59:23,477]  INFO: 10.42.0.1:60343 Disconnect
+[2018-01-08 11:21:42,541]  INFO: Start 0.0.0.0:8000
+[2018-01-08 11:21:44,913]  INFO: 127.0.0.1:12336 Connection
+[2018-01-08 11:22:00,347]  INFO: 127.0.0.1:12336 Disconnect
+[2018-01-08 11:22:12,862]  INFO: 127.0.0.1:12338 Connection
+[2018-01-08 11:22:21,731]  INFO: 127.0.0.1:12338 Disconnect
+[2018-01-08 11:25:37,311]  INFO: 127.0.0.1:12346 Connection
+[2018-01-08 11:25:56,415]  INFO: 127.0.0.1:12346 Disconnect
+[2018-01-08 11:26:02,199]  INFO: 127.0.0.1:12349 Connection
+[2018-01-08 11:26:12,928]  INFO: 127.0.0.1:12349 Disconnect
+[2018-01-08 11:27:43,929]  INFO: 127.0.0.1:12382 Connection
+[2018-01-08 11:28:21,361]  INFO: 127.0.0.1:12382 Disconnect
+[2018-01-08 11:29:53,195]  INFO: 127.0.0.1:12389 Connection
+[2018-01-08 11:30:03,548]  INFO: 127.0.0.1:12389 Disconnect
+[2018-01-08 11:30:09,141]  INFO: 127.0.0.1:12390 Connection
+[2018-01-08 11:30:18,617]  INFO: 127.0.0.1:12390 Disconnect
+[2018-01-08 11:31:18,087]  INFO: 127.0.0.1:12396 Connection
+[2018-01-08 11:32:09,850]  INFO: 127.0.0.1:12396 Disconnect
+[2018-01-08 11:32:25,206]  INFO: 127.0.0.1:12406 Connection
+[2018-01-08 11:32:38,398]  INFO: 127.0.0.1:12406 Disconnect
+[2018-01-08 11:33:31,155]  INFO: 127.0.0.1:12412 Connection
+[2018-01-08 11:33:41,814]  INFO: 127.0.0.1:12412 Disconnect
+[2018-01-08 11:33:54,124]  INFO: 127.0.0.1:12414 Connection
+[2018-01-08 11:34:01,154]  INFO: 127.0.0.1:12414 Disconnect
+[2018-01-08 11:56:06,582]  INFO: 127.0.0.1:12477 Connection
+[2018-01-08 12:03:52,541]  INFO: 127.0.0.1:12482 Connection
+[2018-01-08 12:03:54,789]  INFO: 127.0.0.1:12477 Disconnect
+[2018-01-08 12:04:05,165]  INFO: 127.0.0.1:12483 Connection
+[2018-01-08 12:04:16,153]  ERROR: 127.0.0.1:12483 Error auth {'user': 'test1', 'password': '1234'} list indices must be integers or slices, not NoneType
+[2018-01-08 12:04:20,431]  INFO: 127.0.0.1:12484 Connection
+[2018-01-08 12:04:22,309]  INFO: 127.0.0.1:12483 Disconnect
+[2018-01-08 12:04:22,309]  ERROR: 127.0.0.1:12484 Error auth {'user': 'test1', 'password': '1234'} list indices must be integers or slices, not NoneType
+[2018-01-08 12:04:29,166]  ERROR: 127.0.0.1:12484 Error auth {'user': 'test1', 'password': '1234'} You are already logged in
+[2018-01-08 12:04:42,500]  INFO: 127.0.0.1:12486 Connection
+[2018-01-08 12:07:34,576]  INFO: 127.0.0.1:12492 Connection
+[2018-01-08 12:07:38,875]  INFO: 127.0.0.1:12484 Disconnect
+[2018-01-08 12:07:38,875]  ERROR: 127.0.0.1:12492 Error auth {'user': 'test1', 'password': '1234'} list indices must be integers or slices, not NoneType
+[2018-01-08 13:25:19,063]  INFO: Start 0.0.0.0:8000
+[2018-01-08 13:25:21,969]  INFO: 192.168.1.3:58741 Connection
+[2018-01-08 13:25:47,168]  INFO: 127.0.0.1:12653 Connection
+[2018-01-08 13:26:34,982]  INFO: 192.168.1.3:58741 Disconnect
+[2018-01-08 13:26:41,762]  INFO: 192.168.1.3:58744 Connection
+[2018-01-08 13:31:05,577]  INFO: 192.168.1.3:58744 Disconnect
+[2018-01-08 13:31:10,979]  INFO: 192.168.1.3:58745 Connection
+[2018-01-08 13:31:22,357]  INFO: 192.168.1.3:58745 Disconnect
+[2018-01-08 13:35:53,013]  INFO: 192.168.1.3:58778 Connection
+[2018-01-08 13:36:07,889]  INFO: 192.168.1.3:58778 Disconnect
+[2018-01-08 13:37:16,260]  INFO: 192.168.1.3:58779 Connection
+[2018-01-08 13:37:23,770]  INFO: Start 0.0.0.0:8000
+[2018-01-08 13:37:33,131]  INFO: 192.168.1.3:58780 Connection
+[2018-01-08 13:38:03,219]  INFO: 192.168.1.3:58780 Disconnect
+[2018-01-08 13:38:04,879]  INFO: 192.168.1.3:58781 Connection
+[2018-01-08 13:38:29,360]  INFO: 192.168.1.3:58781 Disconnect
+[2018-01-08 13:38:31,662]  INFO: 192.168.1.3:58782 Connection
+[2018-01-08 13:39:00,514]  INFO: 127.0.0.1:12698 Connection
+[2018-01-08 13:39:46,356]  INFO: 192.168.1.3:58782 Disconnect
+[2018-01-08 13:39:47,933]  INFO: 192.168.1.3:58783 Connection
+[2018-01-08 13:39:48,948]  ERROR: 192.168.1.3:58783 Error hit  list.remove(x): x not in list
+[2018-01-08 13:40:48,879]  INFO: 192.168.1.3:58783 Disconnect
+[2018-01-08 13:42:01,075]  INFO: 192.168.1.3:58784 Connection
+[2018-01-08 13:42:48,203]  ERROR: 192.168.1.3:58784 Error hit  list.remove(x): x not in list
+[2018-01-08 13:43:31,569]  INFO: 192.168.1.3:58784 Disconnect
+[2018-01-08 13:43:43,526]  INFO: 192.168.1.3:58787 Connection
+[2018-01-08 13:45:47,872]  INFO: 192.168.1.3:58787 Disconnect
+[2018-01-08 13:46:36,982]  INFO: 192.168.1.3:58788 Connection
+[2018-01-08 13:46:38,810]  INFO: 127.0.0.1:12698 Disconnect
+[2018-01-08 13:46:41,762]  INFO: 192.168.1.3:58788 Disconnect
+[2018-01-08 13:47:12,685]  INFO: 192.168.1.3:58789 Connection
+[2018-01-08 13:47:13,600]  INFO: 192.168.1.3:58789 Disconnect
+[2018-01-08 13:47:15,717]  INFO: 192.168.1.3:58792 Connection
+[2018-01-08 13:47:21,609]  INFO: 127.0.0.1:12706 Connection
+[2018-01-08 13:47:27,113]  INFO: 127.0.0.1:12706 Disconnect
+[2018-01-08 13:48:19,762]  INFO: 127.0.0.1:12710 Connection
+[2018-01-08 13:49:00,800]  INFO: 192.168.1.3:58792 Disconnect
+[2018-01-08 13:49:02,428]  INFO: 192.168.1.3:58793 Connection
+[2018-01-08 13:49:13,444]  INFO: 192.168.1.3:58793 Disconnect
+[2018-01-08 13:50:12,723]  INFO: 127.0.0.1:12710 Disconnect
+[2018-01-08 13:50:30,294]  INFO: 127.0.0.1:12735 Connection
+[2018-01-08 13:50:31,887]  INFO: 127.0.0.1:12735 Disconnect
+[2018-01-08 13:50:53,503]  INFO: 127.0.0.1:12737 Connection
+[2018-01-08 13:51:03,444]  INFO: 127.0.0.1:12737 Disconnect
+[2018-01-08 13:57:26,585]  INFO: 127.0.0.1:12743 Connection
+[2018-01-08 13:57:49,190]  INFO: 127.0.0.1:12743 Disconnect
+[2018-01-08 14:01:14,425]  INFO: 127.0.0.1:12747 Connection
+[2018-01-08 14:01:17,689]  INFO: 127.0.0.1:12747 Disconnect
+[2018-01-08 14:02:31,879]  INFO: 127.0.0.1:12750 Connection
+[2018-01-08 14:02:53,735]  INFO: 127.0.0.1:12750 Disconnect
+[2018-01-08 14:03:03,386]  INFO: 127.0.0.1:12752 Connection
+[2018-01-08 14:18:26,058]  INFO: Start 0.0.0.0:8000
+[2018-01-08 14:18:46,992]  INFO: 127.0.0.1:12807 Connection
+[2018-01-08 14:19:18,925]  INFO: 127.0.0.1:12807 Disconnect
+[2018-01-08 14:19:35,022]  INFO: 127.0.0.1:12813 Connection
+[2018-01-08 14:24:52,276]  INFO: 127.0.0.1:12827 Connection
+[2018-01-08 14:25:54,506]  ERROR: 127.0.0.1:12827 Error hit  list.remove(x): x not in list
+[2018-01-08 14:26:34,610]  INFO: Start 0.0.0.0:8000
+[2018-01-08 14:26:39,142]  INFO: 127.0.0.1:12846 Connection
+[2018-01-08 14:27:36,404]  INFO: 127.0.0.1:12855 Connection
+[2018-01-08 14:29:00,082]  INFO: Start 0.0.0.0:8000
+[2018-01-08 14:29:08,200]  INFO: 127.0.0.1:12882 Connection
+[2018-01-08 14:29:14,397]  INFO: 127.0.0.1:12887 Connection
+[2018-01-08 14:29:19,251]  INFO: 127.0.0.1:12888 Connection
+[2018-01-08 14:29:22,951]  INFO: 127.0.0.1:12887 Disconnect
+[2018-01-13 17:37:59,395]  INFO: Start 0.0.0.0:8000
+[2018-01-13 17:38:27,161]  INFO: Start 0.0.0.0:8000
+[2018-01-13 19:02:12,959]  INFO: Start 0.0.0.0:8000
+[2018-01-13 19:33:18,533]  INFO: Start 0.0.0.0:8000
+[2018-01-13 19:34:03,646]  INFO: 127.0.0.1:56611 Connection

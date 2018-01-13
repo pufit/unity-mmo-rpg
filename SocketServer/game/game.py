@@ -251,3 +251,5 @@ class Game(threading.Thread):
             self.channel.send({'type': 'tick', 'data': data})
             if TICK - time.time() + t > 0:
                 time.sleep(TICK - time.time() + t)
+            else:
+                print('Мы в дерьме')
