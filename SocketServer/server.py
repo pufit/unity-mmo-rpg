@@ -32,8 +32,11 @@ class Handler(asyncore.dispatcher_with_send):
         self.me = None
 
     def handle_close(self):
-        # commands.leave(self, None)
-        self.logger.info('%s Disconnected' % (self.addr,))
+        commands.leave(self, None)
+        if self.channel:
+            self.channel.leave(self)
+        self.temp.handlers.remove(self)
+        self.logger.info('%s Disconnect' % (self.addr,))
         self.close()
 
     def get_information(self):
