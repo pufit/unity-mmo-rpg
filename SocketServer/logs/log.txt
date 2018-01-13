@@ -1,0 +1,10 @@
+[2018-01-12 17:08:40,992]  INFO: Start localhost:8000
+[2018-01-12 17:10:32,131]  INFO: Start localhost:8000
+[2018-01-12 17:11:08,567]  INFO: Start localhost:8000
+[2018-01-12 17:12:18,547]  INFO: Start localhost:8000
+[2018-01-12 17:12:26,928]  INFO: Start localhost:8000
+[2018-01-12 17:12:44,694]  INFO: Start localhost:8000
+[2018-01-12 17:14:37,233]  INFO: Start localhost:8000
+[2018-01-12 17:17:37,805]  INFO: Start localhost:8000
+[2018-01-12 17:19:06,889]  INFO: ('127.0.0.1', 44453) Connection
+[2018-01-12 17:19:52,816]  INFO: ('127.0.0.1', 44459) Connection
