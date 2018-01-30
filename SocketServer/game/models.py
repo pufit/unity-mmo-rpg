@@ -5,15 +5,37 @@ from .config import *
 class Object:
     id = '0'
     type = 'object'
+    static = True
+    visible = True
+    collide = True
 
     def __init__(self, rect, field):
         self.rect = rect
         self.field = field
-        self.collide = True
 
         self.direction = 0
         self.speed_x, self.speed_y = 0, 0
         self.moving = False
+
+    @staticmethod
+    def canon_id(i):
+        if type(i) == int:
+            return str(i)
+        if i.count(':') != -1:
+            main_id, sub_id = i.split(':')
+            if sub_id == 0:
+                return main_id
+        return i
+
+
+class Entity(Object):
+    type = 'entity'
+    static = False
+    collide = False
+    touchable = True
+
+    def __init__(self, rect, field):
+        super(Entity, self).__init__(rect, field)
 
     def update(self):
         if not (self.speed_x or self.speed_y):
@@ -29,6 +51,13 @@ class Object:
         if not self.check_collide(move_y):
             self.rect = move_y
 
+        if self.touchable:
+            objects = self.field.objects + self.field.players + self.field.npc + self.field.entities
+            objects.remove(self)
+            self.collide_action([objects[i] for i in self.rect.collidelistall(list(map(lambda x: x.rect,
+                                                                                       filter(lambda x: x.collide,
+                                                                                              objects))))])
+
     def check_collide(self, rect):
         objects = self.field.objects + self.field.players + self.field.npc + self.field.entities
         objects.remove(self)
@@ -37,34 +66,6 @@ class Object:
                                                 filter(lambda x: x.collide, objects)))))) or not self.collide):
             return False
         return True
-
-    @staticmethod
-    def canon_id(i):
-        if type(i) == int:
-            return str(i)
-        if i.count(':') != -1:
-            main_id, sub_id = i.split(':')
-            if sub_id == 0:
-                return main_id
-        return i
-
-
-class Entity(Object):
-    type = 'entity'
-
-    def __init__(self, rect, field):
-        super(Entity, self).__init__(rect, field)
-        self.collide = False
-        self.touchable = True
-
-    def update(self):
-        super(Entity, self).update()
-        if self.touchable:
-            objects = self.field.objects + self.field.players + self.field.npc + self.field.entities
-            objects.remove(self)
-            self.collide_action([objects[i] for i in self.rect.collidelistall(list(map(lambda x: x.rect,
-                                                                                       filter(lambda x: x.collide,
-                                                                                              objects))))])
 
     def collide_action(self, *_):
         pass
@@ -148,7 +149,7 @@ class Effect:
         pass
 
 
-class NPC(Object):
+class NPC(Entity):
     type = 'NPC'
 
     def __init__(self, rect, field, hp):

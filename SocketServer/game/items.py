@@ -5,29 +5,17 @@ import math
 
 class Sword(Weapon):
     id = '50'
-
-    def __init__(self, field, owner):
-        super(Sword, self).__init__(field, owner)
-
-        self.damage_value = 10
+    damage_value = 10
 
 
 class UltimateSword(Sword):
     id = '50:1'
-
-    def __init__(self, field, owner):
-        super(UltimateSword, self).__init__(field, owner)
-
-        self.damage_value = 50
+    damage_value = 50
 
 
 class PoisonSword(Sword):
     id = '50:2'
-
-    def __init__(self, field, owner):
-        super(PoisonSword, self).__init__(field, owner)
-
-        self.damage_value = 20
+    damage_value = 20
 
     def damage(self, npc):
         super(PoisonSword, self).damage(npc)
@@ -36,12 +24,8 @@ class PoisonSword(Sword):
 
 class HealingSword(Sword):
     id = '50:3'
-
-    def __init__(self, field, owner):
-        super(HealingSword, self).__init__(field, owner)
-
-        self.damage_value = -1
-        self.action_delay = 5
+    damage_value = -1
+    action_delay = 5
 
     def damage(self, npc):
         super(HealingSword, self).damage(npc)
@@ -54,11 +38,7 @@ class HealingSword(Sword):
 
 class FireStaff(Weapon):
     id = '51'
-
-    def __init__(self, field, owner):
-        super(FireStaff, self).__init__(field, owner)
-
-        self.damage_value = 5
+    damage_value = 5
 
     def action(self, player, angle):
         super(FireStaff, self).action(player)

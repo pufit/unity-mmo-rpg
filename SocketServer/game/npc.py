@@ -6,16 +6,16 @@ class EnemyNPC(NPC):
     id = '200'
     hp = 50
 
+    damage_value = 5
+    damage_delay = 30
+    damage_radius = 35
+
+    speed = 3
+    vision_radius = 100
+
     def __init__(self, rect, field):
         super(EnemyNPC, self).__init__(rect, field, self.hp)
-
-        self.damage_value = 5
-        self.damage_delay = 30
-        self.damage_radius = 35
         self.last_damage_tick = 0
-        self.speed = 3
-
-        self.vision_radius = 100
 
     def hit(self):
         if self.field.tick - self.last_damage_tick < self.damage_delay:

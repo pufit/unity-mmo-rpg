@@ -106,9 +106,9 @@ class Field:
     type = 'field'
 
     def __init__(self, channel):
-        self.objects = []
         self.channel = channel
 
+        self.objects = []
         self.players = []
         self.npc = []
         self.entities = []
