@@ -15,8 +15,8 @@ import random
 class Player(game.models.NPC):
     def __init__(self, x, y, hp, inventory, active_item, field, user):
         super(Player, self).__init__(Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT), field, hp)
-        self.name = user.user
-        self.id = user.user_id
+        self.name = user.name
+        self.id = user.id
         self.user = user
         self.inventory = inventory
         self.active_item = active_item
@@ -208,7 +208,7 @@ class Game(threading.Thread):
                         'x': player.rect.x,
                         'y': player.rect.y,
                         'hp': player.hp,
-                        'id': player.user.user_id,
+                        'id': player.user.id,
                         'active_item': player.active_item.get_index(player.inventory)
                         if getattr(player, 'active_item', None) else 0,
                         'inventory': list(map(lambda x: x.id, player.inventory)),

@@ -1,79 +1,145 @@
-from autobahn.twisted.websocket import WebSocketServerProtocol, \
-    WebSocketServerFactory, \
-    listenWS
-
-from autobahn.websocket.compress import PerMessageDeflateOffer, \
-    PerMessageDeflateOfferAccept
-
+from twisted.internet.protocol import DatagramProtocol
+from twisted.python import failure
+from twisted.internet import error
+from threading import Thread, Lock
+import time
 import json
 import commands
 from config import *
 import logging
-import threading
 import traceback
-import gzip
 from db import Db
 import game.game
 
-lock = threading.Lock()
+connectionDone = failure.Failure(error.ConnectionDone())
+
+lock = Lock()
 db = Db(lock)
 
 
-class Handler(WebSocketServerProtocol):
-    def __init__(self):
-        WebSocketServerProtocol.__init__(self)
-        self.secret_key = ''
+class UDProtocol(DatagramProtocol, Thread):
+    requests = ['connect', 'disconnect', 'ping']
+    errors = {'001': 'Bad request', '002': 'Wrong request', '003': 'Connection first'}
+
+    timeout = 5
+    update = 1 / 2
+
+    def __init__(self, ip, port, r, server):
+        Thread.__init__(self, target=self.run)
+        self.ip = ip
+        self.port = port
+        self.reactor = r
+        self.server = server
+        self.start()
+
+    def datagramReceived(self, datagram, address):
+        if DEBUG and not datagram.count(b'ping'):
+            self.server.logger.info("Datagram %s received from %s" % (repr(datagram), repr(address)))
+
+        try:
+            message = json.loads(datagram.decode('utf-8'))
+            request = message.get('request')
+            data = message.get('data')
+            callback = message.get('callback')
+            handler = self.server.connections.get(address)
+        except (UnicodeDecodeError, json.decoder.JSONDecodeError):
+            self.send(self.get_error_message('001'), address)
+            return
+
+        if not handler and request != 'connect':
+            self.send(self.get_error_message('003'), address, callback)
+            return
+
+        if request:
+            try:
+                if request not in self.requests:
+                    raise Exception('002')
+                response = getattr(self, request)(data, address)
+            except Exception as ex:
+                response = self.get_error_message(ex.args[0])
+        else:
+            response = handler['user'].on_message(message)
+        self.send(response, address, callback)
+
+    def get_error_message(self, error_id):
+        return {'type': 'error', 'data': {'code': error_id, 'message': self.errors[error_id]}}
+
+    def send(self, data, address, callback=None):
+        if not data:
+            return
+        if callback:
+            data['callback'] = callback
+        if type(address) == list:
+            for addr in address:
+                self.transport.write(json.dumps(data).encode('utf-8'), addr)
+            return
+        self.transport.write(json.dumps(data).encode('utf-8'), address)
+
+    def connect(self, _, address):
+        if self.server.connections.get(address):
+            self.disconnect(None, address)
+        user = User(address, self, self.server.main_game, self.server.secret_key)
+        user.on_open()
+        self.server.connections[address] = {'time': time.time(), 'user': user}
+
+    def disconnect(self, _, address):
+        if not self.server.connections.get(address):
+            return
+        handler = self.server.connections.pop(address)
+        handler['user'].on_close()
+
+    def ping(self, _, address):
+        if not self.server.connections.get(address):
+            raise Exception('003')
+        self.server.connections[address]['time'] = time.time()
+
+    def run(self):
+        self.server.logger.info('Protocol started')
+        while True:
+            t = time.time()
+            for handler in self.server.connections.copy().values():
+                if t - handler['time'] > self.timeout:
+                    self.disconnect(None, handler['user'].addr)
+            time.sleep(self.update)
+
+
+class User:
+    secret_key = ''
+
+    def __init__(self, addr, udp, main_game, secret_key):
+        self.udp = udp
+        self.secret_key = secret_key
         self.temp = db
-        self.user = None
-        self.user_id = None
-        self.game = None
+        self.name = None
+        self.id = None
         self.channel = self.temp.main_channel
-        self.user_rights = 0
-        self.addr = None
-        self.typing = False
-        self.logger = logging.getLogger('WSServer')
+        self.rights = 0
+        self.addr = addr
+        self.logger = logging.getLogger('Server')
         self.player_info = {}
         self.game = main_game
         self.me = None
 
-    def ws_send(self, message):
-        if GZIP:
-            data = gzip.compress(message.encode('utf-8'))
-            self.sendMessage(data, isBinary=True)
-        else:
-            data = message.encode('utf-8')
-            self.sendMessage(data)
-
     def get_information(self):
         return {
-            'user': self.user,
-            'user_id': self.user_id,
-            'user_rights': self.user_rights,
+            'user': self.name,
+            'user_id': self.id,
+            'user_rights': self.rights,
             'player_info': self.player_info,
         }
 
-    def onConnect(self, request):
+    def on_open(self):
         self.temp.handlers.append(self)
-        self.addr = request.peer[4:]
-        self.logger.info('%s Connection' % self.addr)
-
-    def onOpen(self):
-        self.ws_send(json.dumps({
+        self.logger.info('%s Connection' % repr(self.addr))
+        self.send({
             'type': 'welcome',
             'data': {
-                'message': 'online-games websocket server WELCOME!',
+                'message': 'udp server WELCOME!',
                 'version': VERSION
             }
-        }))
+        })
 
-    def onMessage(self, payload, is_binary):
-        try:
-            if GZIP:
-                message = json.loads(gzip.decompress(payload).decode('utf-8'))
-            else:
-                message = json.loads(payload).decode('utf-8')
-        except (ValueError, UnicodeDecodeError):
-            message = commands.error(self, None)
+    def on_message(self, message):
         if message.get('type') and not (message.get('data') is None):
             message_type = message['type']
             message_type = message_type.replace('__', '')
@@ -95,49 +161,61 @@ class Handler(WebSocketServerProtocol):
             except Exception as ex:
                 resp = {'type': action + '_error', 'data': str(ex)}
                 self.logger.error('%s Error %s %s %s' % (self.addr, action, data, str(ex)))
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()
         else:
             resp = commands.error(None)
         if message.get('id'):
             resp['id'] = message['id']
         if resp:
-            self.ws_send(json.dumps(resp))
+            self.send(resp)
 
-    def onClose(self, *args):
+    def on_close(self):
         commands.leave(self, None)
         if self.channel:
             self.channel.leave(self)
         self.temp.handlers.remove(self)
         self.logger.info('%s Disconnect' % (self.addr,))
 
+    def send(self, data):
+        self.udp.send(data, self.addr)
 
-def run(secret_key):
-    form = '[%(asctime)s]  %(levelname)s: %(message)s'
-    logger = logging.getLogger("WSServer")
-    logging.basicConfig(level=logging.INFO, format=form)
-    log_handler = logging.FileHandler('logs/log.txt')
-    log_handler.setFormatter(logging.Formatter(form))
-    logger.addHandler(log_handler)
-    logger.info('Start %s:%s' % (IP, PORT))
 
-    factory = WebSocketServerFactory(u"ws://%s:%s" % (IP, PORT))
-    Handler.secret_key = secret_key
-    factory.protocol = Handler
+class Server(Thread):
+    secret_key = 'shouldintermittentvengeancearmagainhisredrighthandtoplagueus'
 
-    def accept(offers):
-        for offer in offers:
-            if isinstance(offer, PerMessageDeflateOffer):
-                return PerMessageDeflateOfferAccept(offer)
+    def __init__(self, ip='0.0.0.0', port=8956):
+        from twisted.internet import reactor
 
-    factory.setProtocolOptions(perMessageCompressionAccept=accept)
-    listenWS(factory)
+        form = '[%(asctime)s]  %(levelname)s: %(message)s'
+        self.logger = logging.getLogger("Server")
+        logging.basicConfig(level=logging.INFO, format=form)
+        log_handler = logging.FileHandler('logs/log.txt')
+        log_handler.setFormatter(logging.Formatter(form))
+        self.logger.addHandler(log_handler)
+
+        self.main_game = game.game.Game(db.main_channel)
+
+        self.ip = ip
+        self.port = port
+
+        self.connections = {}
+
+        self.reactor = reactor
+        self.udp = UDProtocol(ip, port, reactor, self)
+        reactor.listenUDP(port, self.udp)
+
+        Thread.__init__(self, target=self.run())
+
+    def run(self):
+        self.logger.info('Start %s:%s' % (IP, PORT))
+        self.main_game.start()
+        self.reactor.run()
 
 
 if __name__ == '__main__':
-    sk = 'shouldintermittentvengeancearmagainhisredrighthandtoplagueus'
-    main_game = game.game.Game(db.main_channel)
-    main_game.start()
-    run(sk)
+    s = Server()
+    s.start()
     while True:
         try:
             out = eval(input())

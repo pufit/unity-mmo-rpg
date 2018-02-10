@@ -19,7 +19,7 @@ class Channel:
     def send(self, data):
         for handler in self.handlers:
             try:
-                handler.ws_send(json.dumps(data))
+                handler.send(data)
             except Exception as ex:
                 print(ex)
 
@@ -33,16 +33,14 @@ class Channel:
         if type(users) == list:
             for handler in self.handlers:
                 if handler.user in users:
-                    handler.ws_send(json.dumps(data))
+                    handler.send(data)
         elif type(users) == str:
             for handler in self.handlers:
                 if handler.user == users:
-                    handler.ws_send(json.dumps(data))
+                    handler.send(data)
                     break
 
     def leave(self, handler):
-        if handler.typing:
-            self.send({'type': 'user_stop_typing', 'data': {'user': handler.user, 'user_id': handler.user_id}})
         if handler in self.handlers:
             self.handlers.remove(handler)
             self.send({

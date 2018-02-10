@@ -12,7 +12,7 @@ from config import *
 def perms_check(user_rights):
     def decorator(func):
         def wrapper(self, data):
-            if self.user_rights >= user_rights:
+            if self.rights >= user_rights:
                 return func(self, data)
             else:
                 return {'type': 'denied', 'data': 'Not enough rights'}
@@ -38,13 +38,13 @@ def __auth(self, user, session=None, auth_type='auth_ok'):
         'data': self.get_information(), 'session': str
     }
     """
-    self.user = user
-    self.user_id = self.temp.users[user]['user_id']
-    self.user_rights = self.temp.users[user]['user_rights']
+    self.name = user
+    self.id = self.temp.users[user]['user_id']
+    self.rights = self.temp.users[user]['user_rights']
     self.player_info = self.temp.users[user]['player_info']
     for handler in self.temp.handlers:
-        hand_user = handler.user
-        if (hand_user == self.user) and (handler is not self):
+        hand_user = handler.name
+        if (hand_user == self.name) and (handler is not self):
             resp = {'type': 'disconnected', 'data': 'Disconnected!'}
             handler.ws_send(json.dumps(resp))
             handler.onClose()
@@ -74,7 +74,7 @@ def auth(self, data):
 
     :return: __auth(self, data['user'])
     """
-    if self.user:
+    if self.name:
         raise Exception('You are already logged in')
     if (data['user'] in self.temp.users) and (self.temp.users[data['user']]['password'] == data['password']):
         return __auth(self, data['user'])
@@ -117,12 +117,12 @@ def reg(self, data):
         raise Exception('Bad password')
     if data['user'] not in self.temp.users:
         user_id = [self.temp.users[i]['user_id'] for i in self.temp.users]
-        self.user_id = max(user_id) + 1
+        self.id = max(user_id) + 1
         self.temp.users[data["user"]] = {
             'user': data["user"],
             'password': data["password"],
             'user_rights': 1,
-            'user_id': self.user_id,
+            'user_id': self.id,
             'player_info': {
                 'inventory': [],
                 'effects': [],
@@ -143,7 +143,7 @@ def start_typing(self, _):
     if self.typing:
         raise Exception('You are already typing')
     self.typing = True
-    self.channel.send({'type': 'user_start_typing', 'data': {'user': self.user, 'user_id': self.user_id}})
+    self.channel.send({'type': 'user_start_typing', 'data': {'user': self.name, 'user_id': self.id}})
 
 
 @perms_check(1)
@@ -151,7 +151,7 @@ def stop_typing(self, _):
     if not self.typing:
         raise Exception('You are not typing')
     self.typing = False
-    self.channel.send({'type': 'user_stop_typing', 'data': {'user': self.user, 'user_id': self.user_id}})
+    self.channel.send({'type': 'user_stop_typing', 'data': {'user': self.name, 'user_id': self.id}})
 
 
 @perms_check(0)
@@ -166,8 +166,8 @@ def send_message(self, data):
     resp = {
         'type': 'message',
         'data': {
-            'name': self.user,
-            'rights': self.user_rights,
+            'name': self.name,
+            'rights': self.rights,
             'time': time.time(),
             'text': data['text']
         }
@@ -182,8 +182,8 @@ def get_channel_information(self, _):
         user_count = 0
         for handler in self.channel.handlers:
             user_count += 1
-            if handler.user:
-                users[handler.user] = handler.get_information()
+            if handler.name:
+                users[handler.name] = handler.get_information()
         return {
             'type': 'channel',
             'data': {
@@ -210,7 +210,7 @@ def leave(self, _):
         'active_item': self.me.active_item.get_index(self.me.inventory)
         if getattr(self.me, 'active_item', None) else 0,
     }
-    self.temp.users[self.user]['player_info'] = self.player_info
+    self.temp.users[self.name]['player_info'] = self.player_info
     self.me = None
     self.game = None
     self.temp.db_save_all()
