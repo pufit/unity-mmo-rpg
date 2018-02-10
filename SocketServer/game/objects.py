@@ -11,9 +11,9 @@ class Stone(Object):
     width = 30
     height = 30
 
-    def __init__(self, field, x, y):
+    def __init__(self, world, x, y):
 
-        super(Stone, self).__init__(field, Rect(x, y, self.width, self.height))
+        super(Stone, self).__init__(world, Rect(x, y, self.width, self.height))
 
 
 class Grass(Stone):

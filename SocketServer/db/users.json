@@ -18,15 +18,15 @@
     "user": "admin",
     "password": "1234",
     "player_info": {
-      "hp": 100,
-      "y": 90,
-      "active_item": 0,
-      "effects": [],
-      "x": 58,
-      "direction": 0,
       "inventory": [
         "51"
-      ]
+      ],
+      "effects": [],
+      "hp": 100,
+      "x": 58,
+      "y": 90,
+      "direction": 0,
+      "active_item": 0
     },
     "user_id": 1,
     "user_rights": 1

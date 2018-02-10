@@ -1,5 +1,4 @@
 from pygame import Rect
-from .config import *
 
 
 class Object:
@@ -9,9 +8,9 @@ class Object:
     visible = True
     collide = True
 
-    def __init__(self, rect, field):
+    def __init__(self, rect, world):
         self.rect = rect
-        self.field = field
+        self.world = world
 
         self.direction = 0
         self.speed_x, self.speed_y = 0, 0
@@ -34,8 +33,8 @@ class Entity(Object):
     collide = False
     touchable = True
 
-    def __init__(self, rect, field):
-        super(Entity, self).__init__(rect, field)
+    def __init__(self, rect, world):
+        super(Entity, self).__init__(rect, world)
 
     def update(self):
         if not (self.speed_x or self.speed_y):
@@ -52,16 +51,16 @@ class Entity(Object):
             self.rect = move_y
 
         if self.touchable:
-            objects = self.field.objects + self.field.players + self.field.npc + self.field.entities
+            objects = self.world.objects + self.world.players + self.world.npc + self.world.entities
             objects.remove(self)
             self.collide_action([objects[i] for i in self.rect.collidelistall(list(map(lambda x: x.rect,
                                                                                        filter(lambda x: x.collide,
                                                                                               objects))))])
 
     def check_collide(self, rect):
-        objects = self.field.objects + self.field.players + self.field.npc + self.field.entities
+        objects = self.world.objects + self.world.players + self.world.npc + self.world.entities
         objects.remove(self)
-        if self.field.rect.contains(rect) \
+        if self.world.rect.contains(rect) \
                 and((rect.collidelist((list(map(lambda x: x.rect,
                                                 filter(lambda x: x.collide, objects)))))) or not self.collide):
             return False
@@ -74,8 +73,8 @@ class Entity(Object):
 class Item(Entity):
     type = 'item'
 
-    def __init__(self, rect, field, owner):
-        super(Item, self).__init__(rect, field)
+    def __init__(self, rect, world, owner):
+        super(Item, self).__init__(rect, world)
         self.dropped = False
         self.name = None
 
@@ -85,15 +84,15 @@ class Item(Entity):
         self.last_action_tick = 0
 
     def action(self, player):
-        if self.field.tick - self.last_action_tick < self.action_delay:
+        if self.world.tick - self.last_action_tick < self.action_delay:
             return
-        self.last_action_tick = self.field.tick
+        self.last_action_tick = self.world.tick
 
     def collide_action(self, players):
         if not self.dropped:
             return
         player = players[0]
-        if len(player.inventory) <= MAX_ITEMS:
+        if len(player.inventory) <= player.max_items:
             player.get_item(self)
 
     def get_index(self, inventory):
@@ -103,11 +102,11 @@ class Item(Entity):
 
 
 class Weapon(Item):
-    def __init__(self, field, owner):
+    def __init__(self, world, owner):
         self.width = 10
         self.height = 15
 
-        super(Weapon, self).__init__(Rect(0, 0, self.width, self.height), field, owner)
+        super(Weapon, self).__init__(Rect(0, 0, self.width, self.height), world, owner)
         self.damage_value = 0
         self.damage_radius = 70
 
@@ -115,10 +114,10 @@ class Weapon(Item):
         self.last_damage_tick = 0
 
     def hit(self):
-        if self.field.tick - self.last_damage_tick < self.damage_delay:
+        if self.world.tick - self.last_damage_tick < self.damage_delay:
             return
-        self.last_damage_tick = self.field.tick
-        npcs = self.field.npc + self.field.players
+        self.last_damage_tick = self.world.tick
+        npcs = self.world.npc + self.world.players
         npcs.remove(self.owner)
         for npc in npcs:
             if (abs(npc.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
@@ -131,6 +130,7 @@ class Weapon(Item):
 
 class Effect:
     type = 'effect'
+    delay = 2
 
     def __init__(self, npc, ticks, delay):
         self.npc = npc
@@ -152,8 +152,8 @@ class Effect:
 class NPC(Entity):
     type = 'NPC'
 
-    def __init__(self, rect, field, hp):
-        super(NPC, self).__init__(rect, field)
+    def __init__(self, rect, world, hp):
+        super(NPC, self).__init__(rect, world)
         self.hp = hp
         self.effects = []
 
@@ -163,7 +163,7 @@ class NPC(Entity):
                 self.drop_item(i)
         else:
             item.dropped = True
-            self.field.entities.append(item)
+            self.world.entities.append(item)
             if self.rect.y <= 70:
                 item.rect.x, item.rect.y = self.rect.x, self.rect.y - 50
             else:
@@ -177,4 +177,4 @@ class NPC(Entity):
             self.kill()
 
     def kill(self):
-        self.field.npc.remove(self)
+        self.world.npc.remove(self)

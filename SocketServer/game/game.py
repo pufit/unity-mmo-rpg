@@ -1,4 +1,3 @@
-from game.config import *
 import game.items
 import game.entities
 import game.objects
@@ -13,8 +12,13 @@ import random
 
 
 class Player(game.models.NPC):
-    def __init__(self, x, y, hp, inventory, active_item, field, user):
-        super(Player, self).__init__(Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT), field, hp)
+    width = 40
+    height = 60
+    speed = 2
+    max_items = 10
+
+    def __init__(self, x, y, hp, inventory, active_item, world, user):
+        super(Player, self).__init__(Rect(x, y, self.width, self.height), world, hp)
         self.name = user.name
         self.id = user.id
         self.user = user
@@ -24,9 +28,9 @@ class Player(game.models.NPC):
         self.speed_x = self.speed_y = 0
 
     def kill(self):
-        self.field.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)
-        self.rect.x = random.randint(0, self.field.width)
-        self.rect.y = random.randint(0, self.field.height)
+        self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)
+        self.rect.x = random.randint(0, self.world.width)
+        self.rect.y = random.randint(0, self.world.height)
         self.hp = 100
         for item in self.inventory.copy():
             self.drop_item(item)
@@ -34,13 +38,13 @@ class Player(game.models.NPC):
 
     def action(self, act, data):
         if act == 'left':
-            self.speed_x = -PLAYER_SPEED
+            self.speed_x = -self.speed
         elif act == 'right':
-            self.speed_x = PLAYER_SPEED
+            self.speed_x = self.speed
         elif act == 'up':
-            self.speed_y = -PLAYER_SPEED
+            self.speed_y = -self.speed
         elif act == 'down':
-            self.speed_y = PLAYER_SPEED
+            self.speed_y = self.speed
         elif act == 'hit':
             if self.active_item:
                 self.active_item.hit()
@@ -82,7 +86,7 @@ class Player(game.models.NPC):
     def get_item(self, item):
         if type(item) == str:
             item = self.canon_id(item)
-            for entity in self.field.entities:
+            for entity in self.world.entities:
                 if entity.id == item:
                     break
             else:
@@ -91,7 +95,7 @@ class Player(game.models.NPC):
             return
         item.owner = self
         self.inventory.append(item)
-        self.field.entities.remove(item)
+        self.world.entities.remove(item)
         item.dropped = False
         item.rect.x = -1
         item.rect.y = -1
@@ -102,8 +106,11 @@ class Player(game.models.NPC):
         self.speed_y = 0
 
 
-class Field:
-    type = 'field'
+class World:
+    type = 'world'
+
+    width = 2000
+    height = 2000
 
     def __init__(self, channel):
         self.channel = channel
@@ -115,7 +122,6 @@ class Field:
 
         self.tick = 0
 
-        self.width, self.height = FIELD_WIDTH, FIELD_HEIGHT
         self.rect = Rect(0, 0, self.width, self.height)
 
     def do_tick(self):
@@ -170,23 +176,25 @@ class Field:
 
 
 class Game(threading.Thread):
+    TICK = 1 / 30
+
     def __init__(self, channel):
         threading.Thread.__init__(self, target=self.run)
         self.channel = channel
-        self.field = Field(channel)
+        self.world = World(channel)
 
     def add_player(self, user):
-        inventory = self.field.get_object_by_id(user.player_info['inventory'])
+        inventory = self.world.get_object_by_id(user.player_info['inventory'])
         try:
             active_item = inventory[user.player_info['active_item']]
         except IndexError:
             active_item = None
-        return self.field.add_player(user.player_info['x'], user.player_info['y'],
+        return self.world.add_player(user.player_info['x'], user.player_info['y'],
                                      user.player_info['hp'], inventory,
                                      active_item, user)
 
     def delete_player(self, user):
-        self.field.players.remove(user.me)
+        self.world.players.remove(user.me)
         self.channel.send({'type': 'player_left', 'data': ''})
 
     @staticmethod
@@ -201,7 +209,7 @@ class Game(threading.Thread):
     def run(self):
         while True:
             t = time.time()
-            self.field.do_tick()
+            self.world.do_tick()
             data = {
                 'players': [
                     {
@@ -218,21 +226,21 @@ class Game(threading.Thread):
                                 'ticks': effect.ticks
                             } for effect in player.effects
                         ]
-                    } for player in self.field.players
+                    } for player in self.world.players
                 ],
                 'objects': [
                     {
                         'x': obj.rect.x,
                         'y': obj.rect.y,
                         'id': obj.id
-                    } for obj in self.field.objects
+                    } for obj in self.world.objects
                 ],
                 'entities': [
                     {
                         'x': entity.rect.x,
                         'y': entity.rect.y,
                         'id': entity.id
-                    } for entity in self.field.entities
+                    } for entity in self.world.entities
                 ],
                 'npcs': [
                     {
@@ -245,11 +253,11 @@ class Game(threading.Thread):
                                 'ticks': effect.ticks
                             } for effect in npc.effects
                         ]
-                    } for npc in self.field.npc
+                    } for npc in self.world.npc
                 ]
             }
             self.channel.send({'type': 'tick', 'data': data})
-            if TICK - time.time() + t > 0:
-                time.sleep(TICK - time.time() + t)
+            if self.TICK - time.time() + t > 0:
+                time.sleep(self.TICK - time.time() + t)
             else:
-                print('Мы в дерьме')
+                print('Всё плохо')

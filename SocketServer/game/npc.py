@@ -13,22 +13,22 @@ class EnemyNPC(NPC):
     speed = 3
     vision_radius = 100
 
-    def __init__(self, rect, field):
-        super(EnemyNPC, self).__init__(rect, field, self.hp)
+    def __init__(self, rect, world):
+        super(EnemyNPC, self).__init__(rect, world, self.hp)
         self.last_damage_tick = 0
 
     def hit(self):
-        if self.field.tick - self.last_damage_tick < self.damage_delay:
+        if self.world.tick - self.last_damage_tick < self.damage_delay:
             return
-        for player in self.field.players:
+        for player in self.world.players:
             if (abs(player.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
                     and (abs(player.rect.center[1] - self.rect.center[1]) < self.damage_radius):
                 self.damage(player)
-        self.last_damage_tick = self.field.tick
+        self.last_damage_tick = self.world.tick
 
     def update(self):
         super(EnemyNPC, self).update()
-        for player in self.field.players:
+        for player in self.world.players:
             if (abs(player.rect.center[0] - self.rect.center[0]) < self.vision_radius) \
                     and (abs(player.rect.center[1] - self.rect.center[1]) < self.vision_radius):
                 angle = math.acos(

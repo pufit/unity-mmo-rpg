@@ -8,8 +8,8 @@ class Ball(Entity):
     damage_value = 20
     effect = None
 
-    def __init__(self, rect, field, owner):
-        super(Ball, self).__init__(rect, field)
+    def __init__(self, rect, world, owner):
+        super(Ball, self).__init__(rect, world)
 
         self.owner = owner
 
@@ -20,12 +20,12 @@ class Ball(Entity):
         if (target.type == 'npc') and (target != self.owner):
             target.hp -= self.damage_value
             if self.effect:
-                self.field.add_effect(self.effect(target, 5))
+                self.world.add_effect(self.effect(target, 5))
 
 
 class FireBall(Ball):
     id = '150:1'
     effect = FireEffect
 
-    def __init__(self, rect, field, owner):
-        super(FireBall, self).__init__(rect, field, owner)
+    def __init__(self, rect, world, owner):
+        super(FireBall, self).__init__(rect, world, owner)

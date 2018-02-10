@@ -19,7 +19,7 @@ class PoisonSword(Sword):
 
     def damage(self, npc):
         super(PoisonSword, self).damage(npc)
-        self.field.add_effect(PoisonEffect(npc, 5))
+        self.world.add_effect(PoisonEffect(npc, 5))
 
 
 class HealingSword(Sword):
@@ -29,7 +29,7 @@ class HealingSword(Sword):
 
     def damage(self, npc):
         super(HealingSword, self).damage(npc)
-        self.field.add_effect(HealingEffect(npc, 5))
+        self.world.add_effect(HealingEffect(npc, 5))
 
     def action(self, player, *_):
         super(HealingSword, self).action(player)
@@ -44,5 +44,5 @@ class FireStaff(Weapon):
         super(FireStaff, self).action(player)
         speed_y = FireBall.speed * math.cos(angle)
         speed_x = FireBall.speed * math.sin(angle)
-        self.field.spawn_entity(FireBall(self.rect, self.field, self.owner),
+        self.world.spawn_entity(FireBall(self.rect, self.world, self.owner),
                                 player.rect.x, player.rect.y, speed_x, speed_y)
