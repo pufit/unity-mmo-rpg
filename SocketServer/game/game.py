@@ -210,52 +210,7 @@ class Game(threading.Thread):
         while True:
             t = time.time()
             self.world.do_tick()
-            data = {
-                'players': [
-                    {
-                        'x': player.rect.x,
-                        'y': player.rect.y,
-                        'hp': player.hp,
-                        'id': player.user.id,
-                        'active_item': player.active_item.get_index(player.inventory)
-                        if getattr(player, 'active_item', None) else 0,
-                        'inventory': list(map(lambda x: x.id, player.inventory)),
-                        'effects': [
-                            {
-                                'id': effect.id,
-                                'ticks': effect.ticks
-                            } for effect in player.effects
-                        ]
-                    } for player in self.world.players
-                ],
-                'objects': [
-                    {
-                        'x': obj.rect.x,
-                        'y': obj.rect.y,
-                        'id': obj.id
-                    } for obj in self.world.objects
-                ],
-                'entities': [
-                    {
-                        'x': entity.rect.x,
-                        'y': entity.rect.y,
-                        'id': entity.id
-                    } for entity in self.world.entities
-                ],
-                'npcs': [
-                    {
-                        'x': npc.rect.x,
-                        'y': npc.rect.y,
-                        'hp': npc.hp,
-                        'effects': [
-                            {
-                                'id': effect.id,
-                                'ticks': effect.ticks
-                            } for effect in npc.effects
-                        ]
-                    } for npc in self.world.npc
-                ]
-            }
+            data = {'players': [{'x': player.rect.x,'y': player.rect.y,'hp': player.hp,'id': player.user.id,'active_item': player.active_item.get_index(player.inventory)if getattr(player, 'active_item', None) else 0,'inventory': list(map(lambda x: x.id, player.inventory)),'effects': [{'id': effect.id,'ticks': effect.ticks} for effect in player.effects]} for player in self.world.players],'objects': [{'x': obj.rect.x,'y': obj.rect.y,'id': obj.id} for obj in self.world.objects],'entities': [{'x': entity.rect.x,'y': entity.rect.y,'id': entity.id} for entity in self.world.entities],'npcs': [{'x': npc.rect.x,'y': npc.rect.y,'hp': npc.hp,'effects': [{'id': effect.id,'ticks': effect.ticks} for effect in npc.effects]} for npc in self.world.npc]}
             self.channel.send({'type': 'tick', 'data': data})
             if self.TICK - time.time() + t > 0:
                 time.sleep(self.TICK - time.time() + t)
