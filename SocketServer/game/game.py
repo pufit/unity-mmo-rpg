@@ -16,6 +16,7 @@ class Player(game.models.NPC):
     height = 60
     speed = 2
     max_items = 10
+    vision_radius = 1000
 
     def __init__(self, x, y, hp, inventory, active_item, world, user):
         super(Player, self).__init__(Rect(x, y, self.width, self.height), world, hp)
@@ -45,6 +46,13 @@ class Player(game.models.NPC):
             self.speed_y = -self.speed
         elif act == 'down':
             self.speed_y = self.speed
+        elif act == 'stop':
+            if data == 'horizontal':
+                self.speed_x = 0
+            elif data == 'vertical':
+                self.speed_y = 0
+            else:
+                raise Exception("Wrong direction")
         elif act == 'hit':
             if self.active_item:
                 self.active_item.hit()
@@ -102,8 +110,6 @@ class Player(game.models.NPC):
 
     def update(self):
         super(Player, self).update()
-        self.speed_x = 0
-        self.speed_y = 0
 
 
 class World:
@@ -123,6 +129,9 @@ class World:
         self.tick = 0
 
         self.rect = Rect(0, 0, self.width, self.height)
+
+        self.all_objects = list(filter(lambda x: self.get_attr(x),
+                                       map(lambda x: getattr(game.objects, x), dir(game.objects))))
 
     def do_tick(self):
         for player in self.players:
@@ -164,19 +173,22 @@ class World:
         except AttributeError:
             return False
 
+    @staticmethod
+    def get_visible_objects(vision_radius, objects):
+        return [objects[i] for i in vision_radius.collidelistall(
+            list(map(lambda x: x.rect, filter(lambda x: x.visible, objects))))]
+
     def get_object_by_id(self, item_id):
         if item_id is []:
             return []
         if type(item_id) == list:
             return [self.get_object_by_id(i) for i in item_id]
-        all_objects = list(filter(lambda x: self.get_attr(x),
-                                  map(lambda x: getattr(game.objects, x), dir(game.objects))))
-        ids = list(map(lambda x: x.id, all_objects))
-        return all_objects[ids.index(item_id)]
+        ids = list(map(lambda x: x.id, self.all_objects))
+        return self.all_objects[ids.index(item_id)]
 
 
 class Game(threading.Thread):
-    TICK = 1 / 30
+    tick = 1 / 30
 
     def __init__(self, channel):
         threading.Thread.__init__(self, target=self.run)
@@ -188,7 +200,7 @@ class Game(threading.Thread):
         try:
             active_item = inventory[user.player_info['active_item']]
         except IndexError:
-            active_item = None
+            active_item = 0
         return self.world.add_player(user.player_info['x'], user.player_info['y'],
                                      user.player_info['hp'], inventory,
                                      active_item, user)
@@ -210,9 +222,52 @@ class Game(threading.Thread):
         while True:
             t = time.time()
             self.world.do_tick()
-            data = {'players': [{'x': player.rect.x,'y': player.rect.y,'hp': player.hp,'id': player.user.id,'active_item': player.active_item.get_index(player.inventory)if getattr(player, 'active_item', None) else 0,'inventory': list(map(lambda x: x.id, player.inventory)),'effects': [{'id': effect.id,'ticks': effect.ticks} for effect in player.effects]} for player in self.world.players],'objects': [{'x': obj.rect.x,'y': obj.rect.y,'id': obj.id} for obj in self.world.objects],'entities': [{'x': entity.rect.x,'y': entity.rect.y,'id': entity.id} for entity in self.world.entities],'npcs': [{'x': npc.rect.x,'y': npc.rect.y,'hp': npc.hp,'effects': [{'id': effect.id,'ticks': effect.ticks} for effect in npc.effects]} for npc in self.world.npc]}
-            self.channel.send({'type': 'tick', 'data': data})
-            if self.TICK - time.time() + t > 0:
-                time.sleep(self.TICK - time.time() + t)
+            for player in self.world.players:
+                vision_rect = pygame.rect.Rect(player.rect.centerx - player.vision_radius // 2,
+                                               player.rect.centery - player.vision_radius // 2,
+                                               player.vision_radius, player.vision_radius)
+                data = {
+                    'players': [
+                        {
+                            'x': player.rect.x,
+                            'y': player.rect.y,
+                            'hp': player.hp,
+                            'id': player.user.id,
+                            'name': player.user.name,
+                            'active_item': player.active_item.get_index(player.inventory)
+                            if getattr(player, 'active_item', None) else 0,
+                            'inventory': list(map(lambda x: x.id, player.inventory)),
+                            'effects': [
+                                {
+                                    'id': effect.id,
+                                    'ticks': effect.ticks
+                                } for effect in player.effects
+                            ]
+                        } for player in self.world.get_visible_objects(vision_rect, self.world.players)
+                    ],
+                    'entities': [
+                        {
+                            'x': entity.rect.x,
+                            'y': entity.rect.y,
+                            'id': entity.id
+                        } for entity in self.world.get_visible_objects(vision_rect, self.world.entities)
+                    ],
+                    'npc': [
+                        {
+                            'x': npc.rect.x,
+                            'y': npc.rect.y,
+                            'hp': npc.hp,
+                            'effects': [
+                                {
+                                    'id': effect.id,
+                                    'ticks': effect.ticks
+                                } for effect in npc.effects
+                            ]
+                        } for npc in self.world.get_visible_objects(vision_rect, self.world.npc)
+                    ]
+                }
+                self.channel.send_pm({'type': 'tick', 'data': data}, player.name)
+            if self.tick - time.time() + t > 0:
+                time.sleep(self.tick - time.time() + t)
             else:
-                print('Всё плохо')
+                print(self.tick - time.time() + t)

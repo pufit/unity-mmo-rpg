@@ -32,11 +32,11 @@ class Channel:
         """
         if type(users) == list:
             for handler in self.handlers:
-                if handler.user in users:
+                if handler.name in users:
                     handler.send(data)
         elif type(users) == str:
             for handler in self.handlers:
-                if handler.user == users:
+                if handler.name == users:
                     handler.send(data)
                     break
 

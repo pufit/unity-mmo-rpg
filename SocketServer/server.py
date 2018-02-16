@@ -150,7 +150,8 @@ class User:
             except Exception as ex:
                 resp = {'type': message_type + '_error', 'data': str(ex)}
                 self.logger.error('%s Error %s %s %s' % (self.addr, message_type, data, str(ex)))
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()
         elif message.get('action'):
             action = message['action']
             action = action.replace('__', '')

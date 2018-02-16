@@ -151,6 +151,8 @@ class Effect:
 
 class NPC(Entity):
     type = 'NPC'
+    collide = True
+    touchable = False
 
     def __init__(self, rect, world, hp):
         super(NPC, self).__init__(rect, world)

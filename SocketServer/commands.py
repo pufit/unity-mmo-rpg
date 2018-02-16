@@ -46,8 +46,8 @@ def __auth(self, user, session=None, auth_type='auth_ok'):
         hand_user = handler.name
         if (hand_user == self.name) and (handler is not self):
             resp = {'type': 'disconnected', 'data': 'Disconnected!'}
-            handler.ws_send(json.dumps(resp))
-            handler.onClose()
+            handler.send(json.dumps(resp))
+            handler.on_close()
     resp = {
         'type': auth_type,
         'data': self.get_information()
@@ -136,22 +136,6 @@ def reg(self, data):
         self.temp.db_save(USERS, self.temp.users)
         return __auth(self, data['user'], auth_type='reg_ok')
     raise Exception('This login is already in use')
-
-
-@perms_check(1)
-def start_typing(self, _):
-    if self.typing:
-        raise Exception('You are already typing')
-    self.typing = True
-    self.channel.send({'type': 'user_start_typing', 'data': {'user': self.name, 'user_id': self.id}})
-
-
-@perms_check(1)
-def stop_typing(self, _):
-    if not self.typing:
-        raise Exception('You are not typing')
-    self.typing = False
-    self.channel.send({'type': 'user_stop_typing', 'data': {'user': self.name, 'user_id': self.id}})
 
 
 @perms_check(0)
