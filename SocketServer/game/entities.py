@@ -8,8 +8,8 @@ class Ball(Entity):
     damage_value = 20
     effect = None
 
-    def __init__(self, rect, world, owner):
-        super(Ball, self).__init__(rect, world)
+    def __init__(self, world, owner):
+        super(Ball, self).__init__(world)
 
         self.owner = owner
 
@@ -27,5 +27,5 @@ class FireBall(Ball):
     id = '150:1'
     effect = FireEffect
 
-    def __init__(self, rect, world, owner):
-        super(FireBall, self).__init__(rect, world, owner)
+    def __init__(self, world, owner):
+        super(FireBall, self).__init__(world, owner)

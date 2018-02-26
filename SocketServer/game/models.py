@@ -8,8 +8,14 @@ class Object:
     visible = True
     collide = True
 
-    def __init__(self, rect, world):
-        self.rect = rect
+    width = 50
+    height = 50
+
+    x = 0
+    y = 0
+
+    def __init__(self, world, x=0, y=0):
+        self.rect = Rect(x, y, self.width, self.height)
         self.world = world
 
         self.direction = 0
@@ -27,14 +33,19 @@ class Object:
         return i
 
 
+class Block(Object):
+    type = 'block'
+    size = 50
+
+
 class Entity(Object):
     type = 'entity'
     static = False
     collide = False
     touchable = True
 
-    def __init__(self, rect, world):
-        super(Entity, self).__init__(rect, world)
+    def __init__(self, world):
+        super(Entity, self).__init__(world)
 
     def update(self):
         if not (self.speed_x or self.speed_y):
@@ -57,6 +68,8 @@ class Entity(Object):
                                                                                        filter(lambda x: x.collide,
                                                                                               objects))))])
 
+        self.chunk = self.world.get_chunk_by_cords(self.rect.centerx, self.rect.centery)
+
     def check_collide(self, rect):
         objects = self.world.objects + self.world.players + self.world.npc + self.world.entities
         objects.remove(self)
@@ -66,6 +79,13 @@ class Entity(Object):
             return False
         return True
 
+    def spawn(self, x, y, speed_x=0, speed_y=0):
+        self.rect.center = x, y
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.chunk = self.world.get_chunk_by_cords(x, y)
+        self.chunk.entities.append(self)
+
     def collide_action(self, *_):
         pass
 
@@ -73,8 +93,8 @@ class Entity(Object):
 class Item(Entity):
     type = 'item'
 
-    def __init__(self, rect, world, owner):
-        super(Item, self).__init__(rect, world)
+    def __init__(self, world, owner):
+        super(Item, self).__init__(world)
         self.dropped = False
         self.name = None
 
@@ -83,7 +103,7 @@ class Item(Entity):
         self.action_delay = 15
         self.last_action_tick = 0
 
-    def action(self, player):
+    def action(self, *args):
         if self.world.tick - self.last_action_tick < self.action_delay:
             return
         self.last_action_tick = self.world.tick
@@ -102,15 +122,16 @@ class Item(Entity):
 
 
 class Weapon(Item):
+    width = 10
+    height = 15
+
+    damage_value = 0
+    damage_radius = 70
+    damage_delay = 15
+
     def __init__(self, world, owner):
-        self.width = 10
-        self.height = 15
 
-        super(Weapon, self).__init__(Rect(0, 0, self.width, self.height), world, owner)
-        self.damage_value = 0
-        self.damage_radius = 70
-
-        self.damage_delay = 15
+        super(Weapon, self).__init__(world, owner)
         self.last_damage_tick = 0
 
     def hit(self):
@@ -127,15 +148,29 @@ class Weapon(Item):
     def damage(self, npc):
         npc.hp -= self.damage_value
 
+    def drop(self):
+        self.dropped = True
+        if self.owner.rect.y <= 70:
+            x, y = self.owner.rect.x, self.owner.rect.y - 50
+        else:
+            x, y = self.owner.rect.x, self.owner.rect.y + 70
+        self.spawn(x, y)
+
 
 class Effect:
     type = 'effect'
-    delay = 2
+    id = '100'
 
-    def __init__(self, npc, ticks, delay):
+    delay = 2
+    ticks = 20
+
+    def __init__(self, npc):
         self.npc = npc
-        self.ticks = ticks
-        self.delay = delay
+
+        for eff in npc.effects:
+            if eff.id == self.id:
+                npc.effects.remove(eff)
+        npc.effects.append(self)
 
     def update(self):
         if self.ticks == 0:
@@ -153,23 +188,12 @@ class NPC(Entity):
     type = 'NPC'
     collide = True
     touchable = False
+    vision_radius = 100
+    hp = 100
 
-    def __init__(self, rect, world, hp):
-        super(NPC, self).__init__(rect, world)
-        self.hp = hp
+    def __init__(self, world):
+        super(NPC, self).__init__(world)
         self.effects = []
-
-    def drop_item(self, item):
-        if type(item) == list:
-            for i in item:
-                self.drop_item(i)
-        else:
-            item.dropped = True
-            self.world.entities.append(item)
-            if self.rect.y <= 70:
-                item.rect.x, item.rect.y = self.rect.x, self.rect.y - 50
-            else:
-                item.rect.x, item.rect.y = self.rect.x, self.rect.y + 70
 
     def update(self):
         super(NPC, self).update()
@@ -179,4 +203,4 @@ class NPC(Entity):
             self.kill()
 
     def kill(self):
-        self.world.npc.remove(self)
+        self.chunk.npc.remove(self)

@@ -18,24 +18,23 @@ class Player(game.models.NPC):
     max_items = 10
     vision_radius = 1000
 
-    def __init__(self, x, y, hp, inventory, active_item, world, user):
-        super(Player, self).__init__(Rect(x, y, self.width, self.height), world, hp)
+    def __init__(self, world, user):
+        super(Player, self).__init__(world)
         self.name = user.name
         self.id = user.id
         self.user = user
-        self.inventory = inventory
-        self.active_item = active_item
+        self.inventory = []
+        self.active_item = None  # TODO: Fists
 
         self.speed_x = self.speed_y = 0
 
     def kill(self):
-        self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)
+        self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)  # TODO: send death data
         self.rect.x = random.randint(0, self.world.width)
         self.rect.y = random.randint(0, self.world.height)
         self.hp = 100
         for item in self.inventory.copy():
-            self.drop_item(item)
-        self.drop_item(self.active_item)
+            item.drop()
 
     def action(self, act, data):
         if act == 'left':
@@ -88,43 +87,49 @@ class Player(game.models.NPC):
                 return
             self.drop_item(i)
             return
-        super(Player, self).drop_item(item)
+        item.drop()
         self.inventory.remove(item)
 
     def get_item(self, item):
-        if type(item) == str:
-            item = self.canon_id(item)
-            for entity in self.world.entities:
-                if entity.id == item:
-                    break
-            else:
-                return
-            self.get_item(entity)
-            return
         item.owner = self
         self.inventory.append(item)
-        self.world.entities.remove(item)
+        item.chunk.entities.remove(item)
         item.dropped = False
-        item.rect.x = -1
-        item.rect.y = -1
 
     def update(self):
         super(Player, self).update()
 
 
-class World:
-    type = 'world'
+class Chunk:
+    size = 20
 
-    width = 2000
-    height = 2000
-
-    def __init__(self, channel):
-        self.channel = channel
-
+    def __init__(self, x, y):
+        self.x, self.y = x, y
         self.objects = []
         self.players = []
         self.npc = []
         self.entities = []
+
+    def update(self):
+        for player in self.players:
+            player.update()
+        for npc in self.npc:
+            npc.update()
+        for entity in self.entities:
+            entity.update()
+
+
+class World:
+    type = 'world'
+
+    width = 5000
+    height = 5000
+
+    def __init__(self, channel):
+        self.channel = channel
+
+        self.active_chunks = []
+        self.chunks = []
 
         self.tick = 0
 
@@ -134,37 +139,20 @@ class World:
                                        map(lambda x: getattr(game.objects, x), dir(game.objects))))
 
     def do_tick(self):
-        for player in self.players:
-            player.update()
-        for npc in self.npc:
-            npc.update()
-        for entity in self.entities:
-            entity.update()
+        for chunk in self.active_chunks:
+            chunk.update()
         self.tick += 1
 
     def add_player(self, x, y, hp, inventory, active_item, user):
-        player = Player(x, y, hp, inventory, active_item, self, user)
+        player = Player(self, user)
+        player.hp = hp
+        player.inventory = inventory
         for i in range(len(player.inventory)):
             player.inventory[i] = player.inventory[i](self, player)
         if active_item:
             player.active_item = player.active_item(self, player)
-        self.players.append(player)
+        player.spawn(x, y)
         return player
-
-    def spawn_entity(self, entity, x, y, speed_x, speed_y):
-        entity.rect.x = x
-        entity.rect.y = y
-        entity.speed_x = speed_x
-        entity.speed_y = speed_y
-        self.entities.append(entity)
-
-    @staticmethod
-    def add_effect(effect):
-        npc = effect.npc
-        for eff in npc.effects:
-            if eff.id == effect.id:
-                npc.effects.remove(eff)
-        npc.effects.append(effect)
 
     @staticmethod
     def get_attr(obj, attr='id'):
@@ -186,6 +174,9 @@ class World:
         ids = list(map(lambda x: x.id, self.all_objects))
         return self.all_objects[ids.index(item_id)]
 
+    def get_chunk_by_cords(self, x, y):
+        pass
+
 
 class Game(threading.Thread):
     tick = 1 / 30
@@ -206,8 +197,8 @@ class Game(threading.Thread):
                                      active_item, user)
 
     def delete_player(self, user):
-        self.world.players.remove(user.me)
-        self.channel.send({'type': 'player_left', 'data': ''})
+        user.me.chunk.players.remove(user.me)
+        self.channel.send({'type': 'player_left', 'data': ''})  # TODO: send data
 
     @staticmethod
     def get_img(name):

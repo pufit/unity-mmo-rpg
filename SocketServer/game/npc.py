@@ -11,10 +11,9 @@ class EnemyNPC(NPC):
     damage_radius = 35
 
     speed = 3
-    vision_radius = 100
 
-    def __init__(self, rect, world):
-        super(EnemyNPC, self).__init__(rect, world, self.hp)
+    def __init__(self, world):
+        super(EnemyNPC, self).__init__(world)
         self.last_damage_tick = 0
 
     def hit(self):
