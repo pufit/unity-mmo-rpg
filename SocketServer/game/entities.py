@@ -20,7 +20,8 @@ class Ball(Entity):
         if (target.type == 'npc') and (target != self.owner):
             target.hp -= self.damage_value
             if self.effect:
-                self.world.add_effect(self.effect(target, 5))
+                effect = self.effect(target)
+                effect.ticks = 5
 
 
 class FireBall(Ball):

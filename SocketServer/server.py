@@ -56,6 +56,7 @@ class UDProtocol(DatagramProtocol, Thread):
                     raise Exception('002')
                 response = getattr(self, request)(data, address)
             except Exception as ex:
+                print(request)
                 response = self.get_error_message(ex.args[0])
         else:
             response = handler['user'].on_message(message)
@@ -182,7 +183,7 @@ class User:
         self.udp.send(data, self.addr)
 
 
-class Server(Thread):
+class Server:
     secret_key = 'shouldintermittentvengeancearmagainhisredrighthandtoplagueus'
 
     def __init__(self, ip='0.0.0.0', port=8956):
@@ -206,23 +207,30 @@ class Server(Thread):
         self.udp = UDProtocol(ip, port, reactor, self)
         reactor.listenUDP(port, self.udp)
 
-        Thread.__init__(self, target=self.run())
-
     def run(self):
         self.logger.info('Start %s:%s' % (IP, PORT))
         self.main_game.start()
+        Console()
         self.reactor.run()
+
+
+class Console(Thread):
+    def __init__(self):
+        super().__init__(target=self.run)
+        self.start()
+
+    def run(self):
+        while True:
+            try:
+                out = eval(input())
+                if out is not None:
+                    print(out)
+            except KeyboardInterrupt:
+                exit()
+            except:
+                traceback.print_exc()
 
 
 if __name__ == '__main__':
     s = Server()
-    s.start()
-    while True:
-        try:
-            out = eval(input())
-            if out is not None:
-                print(out)
-        except KeyboardInterrupt:
-            exit()
-        except:
-            traceback.print_exc()
+    s.run()

@@ -44,7 +44,7 @@ class FireStaff(Weapon):
 
     def action(self, angle):
         super().action()
-        speed_y = FireBall.speed * math.cos(angle)
-        speed_x = FireBall.speed * math.sin(angle)
+        speed_y = round(FireBall.speed * math.cos(angle))
+        speed_x = round(FireBall.speed * math.sin(angle))
         fireball = FireBall(self.world, self.owner)
         fireball.spawn(self.owner.x, self.owner.y, speed_x, speed_y)

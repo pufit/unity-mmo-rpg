@@ -12,11 +12,13 @@ import random
 
 
 class Player(game.models.NPC):
+    type = 'player'
+
     width = 40
     height = 60
     speed = 2
     max_items = 10
-    vision_radius = 1000
+    render_radius = 2
 
     def __init__(self, world, user):
         super(Player, self).__init__(world)
@@ -27,14 +29,15 @@ class Player(game.models.NPC):
         self.active_item = None  # TODO: Fists
 
         self.speed_x = self.speed_y = 0
+        self.render_chunks = set()
 
     def kill(self):
         self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)  # TODO: send death data
-        self.rect.x = random.randint(0, self.world.width)
-        self.rect.y = random.randint(0, self.world.height)
+        self.chunk.remove(self)
         self.hp = 100
         for item in self.inventory.copy():
             item.drop()
+        self.spawn(random.randint(100, self.world.width - 100), random.randint(100, self.world.height - 100))
 
     def action(self, act, data):
         if act == 'left':
@@ -96,8 +99,15 @@ class Player(game.models.NPC):
         item.chunk.entities.remove(item)
         item.dropped = False
 
-    def update(self):
-        super(Player, self).update()
+    def spawn(self, x, y, *args):
+        super().spawn(x, y)
+        self.render_chunks = self.get_chunks()
+        self.world.reload_active_chunks()
+
+    def check_chunk(self):
+        if super().check_chunk():
+            self.render_chunks = self.get_chunks()
+            self.world.reload_active_chunks()
 
 
 class Chunk:
@@ -118,6 +128,27 @@ class Chunk:
         for entity in self.entities:
             entity.update()
 
+    def remove(self, obj):
+        if obj.type == 'object':
+            self.objects.remove(obj)
+        elif obj.type == 'entity':
+            self.entities.remove(obj)
+        elif obj.type == 'npc':
+            self.npc.remove(obj)
+        elif obj.type == 'player':
+            self.players.remove(obj)
+
+    def add(self, obj):
+        obj.chunk = self
+        if obj.type == 'object':
+            self.objects.append(obj)
+        elif obj.type == 'entity':
+            self.entities.append(obj)
+        elif obj.type == 'npc':
+            self.npc.append(obj)
+        elif obj.type == 'player':
+            self.players.append(obj)
+
 
 class World:
     type = 'world'
@@ -128,8 +159,11 @@ class World:
     def __init__(self, channel):
         self.channel = channel
 
-        self.active_chunks = []
-        self.chunks = []
+        self.players = []
+
+        self.active_chunks = set()
+        self.chunks = [[Chunk(x, y) for y in range(self.width // Chunk.size // game.models.Block.size)]
+                       for x in range(self.height // Chunk.size // game.models.Block.size)]
 
         self.tick = 0
 
@@ -137,6 +171,11 @@ class World:
 
         self.all_objects = list(filter(lambda x: self.get_attr(x),
                                        map(lambda x: getattr(game.objects, x), dir(game.objects))))
+
+    def reload_active_chunks(self):
+        self.active_chunks = set()
+        for player in self.players:
+            self.active_chunks |= player.render_chunks
 
     def do_tick(self):
         for chunk in self.active_chunks:
@@ -150,7 +189,8 @@ class World:
         for i in range(len(player.inventory)):
             player.inventory[i] = player.inventory[i](self, player)
         if active_item:
-            player.active_item = player.active_item(self, player)
+            player.active_item = active_item(self, player)
+        self.players.append(player)
         player.spawn(x, y)
         return player
 
@@ -162,9 +202,8 @@ class World:
             return False
 
     @staticmethod
-    def get_visible_objects(vision_radius, objects):
-        return [objects[i] for i in vision_radius.collidelistall(
-            list(map(lambda x: x.rect, filter(lambda x: x.visible, objects))))]
+    def get_visible_objects(objects):
+        return list(filter(lambda x: x.visible, objects))
 
     def get_object_by_id(self, item_id):
         if item_id is []:
@@ -174,12 +213,12 @@ class World:
         ids = list(map(lambda x: x.id, self.all_objects))
         return self.all_objects[ids.index(item_id)]
 
-    def get_chunk_by_cords(self, x, y):
-        pass
+    def get_chunk_by_coord(self, x, y):
+        return self.chunks[x // (game.models.Block.size * Chunk.size)][y // (game.models.Block.size * Chunk.size)]
 
 
 class Game(threading.Thread):
-    tick = 1 / 30
+    tps = 30
 
     def __init__(self, channel):
         threading.Thread.__init__(self, target=self.run)
@@ -198,6 +237,8 @@ class Game(threading.Thread):
 
     def delete_player(self, user):
         user.me.chunk.players.remove(user.me)
+        self.world.players.remove(user.me)
+        self.world.reload_active_chunks()
         self.channel.send({'type': 'player_left', 'data': ''})  # TODO: send data
 
     @staticmethod
@@ -214,9 +255,13 @@ class Game(threading.Thread):
             t = time.time()
             self.world.do_tick()
             for player in self.world.players:
-                vision_rect = pygame.rect.Rect(player.rect.centerx - player.vision_radius // 2,
-                                               player.rect.centery - player.vision_radius // 2,
-                                               player.vision_radius, player.vision_radius)
+                entities = []
+                npc = []
+                players = []
+                for chunk in player.get_chunks():
+                    entities += chunk.entities
+                    npc += chunk.npc
+                    players += chunk.players
                 data = {
                     'players': [
                         {
@@ -234,14 +279,14 @@ class Game(threading.Thread):
                                     'ticks': effect.ticks
                                 } for effect in player.effects
                             ]
-                        } for player in self.world.get_visible_objects(vision_rect, self.world.players)
+                        } for player in self.world.get_visible_objects(players)
                     ],
                     'entities': [
                         {
                             'x': entity.rect.x,
                             'y': entity.rect.y,
                             'id': entity.id
-                        } for entity in self.world.get_visible_objects(vision_rect, self.world.entities)
+                        } for entity in self.world.get_visible_objects(entities)
                     ],
                     'npc': [
                         {
@@ -254,11 +299,11 @@ class Game(threading.Thread):
                                     'ticks': effect.ticks
                                 } for effect in npc.effects
                             ]
-                        } for npc in self.world.get_visible_objects(vision_rect, self.world.npc)
+                        } for npc in self.world.get_visible_objects(npc)
                     ]
                 }
                 self.channel.send_pm({'type': 'tick', 'data': data}, player.name)
-            if self.tick - time.time() + t > 0:
-                time.sleep(self.tick - time.time() + t)
+            if 1 / self.tps - time.time() + t > 0:
+                time.sleep(1 / self.tps - time.time() + t)
             else:
-                print(self.tick - time.time() + t)
+                print(self.tps + 1 / self.tps - time.time() + t)

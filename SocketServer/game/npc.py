@@ -19,7 +19,7 @@ class EnemyNPC(NPC):
     def hit(self):
         if self.world.tick - self.last_damage_tick < self.damage_delay:
             return
-        for player in self.world.players:
+        for player in self.world.players:  # TODO: chunk players
             if (abs(player.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
                     and (abs(player.rect.center[1] - self.rect.center[1]) < self.damage_radius):
                 self.damage(player)

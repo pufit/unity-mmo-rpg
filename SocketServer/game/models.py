@@ -21,6 +21,7 @@ class Object:
         self.direction = 0
         self.speed_x, self.speed_y = 0, 0
         self.moving = False
+        self.chunk = self.world.get_chunk_by_coord(x, y)
 
     @staticmethod
     def canon_id(i):
@@ -44,6 +45,8 @@ class Entity(Object):
     collide = False
     touchable = True
 
+    render_radius = 1
+
     def __init__(self, world):
         super(Entity, self).__init__(world)
 
@@ -52,30 +55,16 @@ class Entity(Object):
             return
 
         self.moving = True
-
-        move_x = self.rect.move(int(self.speed_x), 0)
-        if not self.check_collide(move_x):
-            self.rect = move_x
-
-        move_y = self.rect.move(0, int(self.speed_y))
-        if not self.check_collide(move_y):
-            self.rect = move_y
-
-        if self.touchable:
-            objects = self.world.objects + self.world.players + self.world.npc + self.world.entities
-            objects.remove(self)
-            self.collide_action([objects[i] for i in self.rect.collidelistall(list(map(lambda x: x.rect,
-                                                                                       filter(lambda x: x.collide,
-                                                                                              objects))))])
-
-        self.chunk = self.world.get_chunk_by_cords(self.rect.centerx, self.rect.centery)
+        self.move(int(self.speed_x), int(self.speed_y))
 
     def check_collide(self, rect):
-        objects = self.world.objects + self.world.players + self.world.npc + self.world.entities
+        objects = []
+        for chunk in self.get_chunks():
+            objects += chunk.objects + chunk.entities + chunk.npc + chunk.players
         objects.remove(self)
         if self.world.rect.contains(rect) \
-                and((rect.collidelist((list(map(lambda x: x.rect,
-                                                filter(lambda x: x.collide, objects)))))) or not self.collide):
+                and ((rect.collidelist((list(map(lambda x: x.rect,
+                                                 filter(lambda x: x.collide, objects)))))) or not self.collide):
             return False
         return True
 
@@ -83,8 +72,59 @@ class Entity(Object):
         self.rect.center = x, y
         self.speed_x = speed_x
         self.speed_y = speed_y
-        self.chunk = self.world.get_chunk_by_cords(x, y)
-        self.chunk.entities.append(self)
+        self.world.get_chunk_by_coord(x, y).add(self)
+
+    def move(self, x, y):
+        """
+        Change current coordinates with collision
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        move_x = self.rect.move(x, 0)
+        if not self.check_collide(move_x):
+            self.rect = move_x
+
+        move_y = self.rect.move(0, y)
+        if not self.check_collide(move_y):
+            self.rect = move_y
+
+        self.check_chunk()
+
+        if self.touchable:
+            objects = self.chunk.objects + self.chunk.players + self.chunk.npc + self.chunk.entities
+            objects.remove(self)
+            self.collide_action([objects[i] for i in self.rect.collidelistall(list(map(lambda r: r.rect,
+                                                                                       filter(lambda r: r.collide,
+                                                                                              objects))))])
+
+    def tp(self, x, y):
+        """
+        Change current coordinates
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self.rect.center = x, y
+        self.check_chunk()
+
+    def check_chunk(self):
+        chunk = self.world.get_chunk_by_coord(self.rect.centerx, self.rect.centery)
+        if chunk != self.chunk:
+            self.chunk.remove(self)
+            chunk.add(self)
+            return True
+
+    def get_chunks(self):
+        """
+        :return: set
+        """
+        chunks = set()
+        for i in range(-self.render_radius, self.render_radius + 1):
+            for j in range(-self.render_radius, self.render_radius + 1):
+                if 0 <= self.chunk.x + i < len(self.world.chunks) and 0 <= self.chunk.y + j < len(self.world.chunks[0]):
+                    chunks.add(self.world.chunks[self.chunk.x + i][self.chunk.y + j])
+        return chunks
 
     def collide_action(self, *_):
         pass
