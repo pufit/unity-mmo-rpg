@@ -101,24 +101,25 @@ class Player(game.models.NPC):
 
     def spawn(self, x, y, *args):
         super().spawn(x, y)
-        self.render_chunks = self.get_chunks()
+        self.render_chunks = self.chunk.get_near_chunks(self.render_radius)
         self.world.reload_active_chunks()
 
     def check_chunk(self):
         if super().check_chunk():
-            self.render_chunks = self.get_chunks()
+            self.render_chunks = self.chunk.get_near_chunks(self.render_radius)
             self.world.reload_active_chunks()
 
 
 class Chunk:
     size = 20
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, world):
         self.x, self.y = x, y
         self.objects = []
         self.players = []
         self.npc = []
         self.entities = []
+        self.world = world
 
     def update(self):
         for player in self.players:
@@ -149,6 +150,30 @@ class Chunk:
         elif obj.type == 'player':
             self.players.append(obj)
 
+    def get_near_chunks(self, r=2):
+        """
+        :return: set
+        """
+        chunks = set()
+        for i in range(-r, r + 1):
+            for j in range(-r, r + 1):
+                if 0 <= self.x + i < len(self.world.chunks) and 0 <= self.y + j < len(self.world.chunks[0]):
+                    chunks.add(self.world.chunks[self.x + i][self.y + j])
+        return chunks
+
+    def get_near(self, *args, r=1):
+        objects = []
+        for chunk in self.get_near_chunks(r):
+            if 'players' in args:
+                objects += chunk.players
+            if 'npc' in args:
+                objects += chunk.npc
+            if 'entities' in args:
+                objects += chunk.entities
+            if 'objects' in args:
+                objects += chunk.objects
+        return objects
+
 
 class World:
     type = 'world'
@@ -162,7 +187,7 @@ class World:
         self.players = []
 
         self.active_chunks = set()
-        self.chunks = [[Chunk(x, y) for y in range(self.width // Chunk.size // game.models.Block.size)]
+        self.chunks = [[Chunk(x, y, self) for y in range(self.width // Chunk.size // game.models.Block.size)]
                        for x in range(self.height // Chunk.size // game.models.Block.size)]
 
         self.tick = 0
@@ -258,7 +283,7 @@ class Game(threading.Thread):
                 entities = []
                 npc = []
                 players = []
-                for chunk in player.get_chunks():
+                for chunk in player.chunk.get_near_chunks(Player.render_radius):
                     entities += chunk.entities
                     npc += chunk.npc
                     players += chunk.players

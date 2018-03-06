@@ -188,8 +188,8 @@ def leave(self, _):
         'inventory': list(map(lambda x: x.id, self.me.inventory)),
         'effects': list(map(lambda x: x.id, self.me.effects)),
         'hp': self.me.hp,
-        'x': self.me.rect.x,
-        'y': self.me.rect.y,
+        'x': self.me.rect.centerx,
+        'y': self.me.rect.centery,
         'direction': self.me.direction,
         'active_item': self.me.active_item.get_index(self.me.inventory)
         if getattr(self.me, 'active_item', None) else 0,

@@ -45,8 +45,6 @@ class Entity(Object):
     collide = False
     touchable = True
 
-    render_radius = 1
-
     def __init__(self, world):
         super(Entity, self).__init__(world)
 
@@ -58,9 +56,7 @@ class Entity(Object):
         self.move(int(self.speed_x), int(self.speed_y))
 
     def check_collide(self, rect):
-        objects = []
-        for chunk in self.get_chunks():
-            objects += chunk.objects + chunk.entities + chunk.npc + chunk.players
+        objects = self.chunk.get_near('objects', 'players', 'npc', 'entities')
         objects.remove(self)
         if self.world.rect.contains(rect) \
                 and ((rect.collidelist((list(map(lambda x: x.rect,
@@ -115,17 +111,6 @@ class Entity(Object):
             chunk.add(self)
             return True
 
-    def get_chunks(self):
-        """
-        :return: set
-        """
-        chunks = set()
-        for i in range(-self.render_radius, self.render_radius + 1):
-            for j in range(-self.render_radius, self.render_radius + 1):
-                if 0 <= self.chunk.x + i < len(self.world.chunks) and 0 <= self.chunk.y + j < len(self.world.chunks[0]):
-                    chunks.add(self.world.chunks[self.chunk.x + i][self.chunk.y + j])
-        return chunks
-
     def collide_action(self, *_):
         pass
 
@@ -178,7 +163,7 @@ class Weapon(Item):
         if self.world.tick - self.last_damage_tick < self.damage_delay:
             return
         self.last_damage_tick = self.world.tick
-        npcs = self.world.npc + self.world.players
+        npcs = self.owner.chunk.get_near('npc', 'players')
         npcs.remove(self.owner)
         for npc in npcs:
             if (abs(npc.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
