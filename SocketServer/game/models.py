@@ -20,7 +20,6 @@ class Object:
 
         self.direction = 0
         self.speed_x, self.speed_y = 0, 0
-        self.moving = False
         self.chunk = self.world.get_chunk_by_coord(x, y)
 
     @staticmethod
@@ -52,7 +51,6 @@ class Entity(Object):
         if not (self.speed_x or self.speed_y):
             return
 
-        self.moving = True
         self.move(int(self.speed_x), int(self.speed_y))
 
     def check_collide(self, rect):
@@ -139,11 +137,6 @@ class Item(Entity):
         player = players[0]
         if len(player.inventory) <= player.max_items:
             player.get_item(self)
-
-    def get_index(self, inventory):
-        if self in inventory:
-            return inventory.index(self)
-        return 0
 
 
 class Weapon(Item):

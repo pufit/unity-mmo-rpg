@@ -3,6 +3,7 @@ import game.entities
 import game.objects
 import game.effects
 import game.models
+from numba import jit
 
 import threading
 import time
@@ -10,12 +11,16 @@ import pygame
 from pygame import Rect
 import random
 
+import pickle  # I'm a pickle, Morty!
+# TODO: save world
+
 
 class Player(game.models.NPC):
     type = 'player'
 
     width = 40
     height = 60
+
     speed = 2
     max_items = 10
     render_radius = 2
@@ -31,13 +36,16 @@ class Player(game.models.NPC):
         self.speed_x = self.speed_y = 0
         self.render_chunks = set()
 
+        self.state = {}
+
     def kill(self):
         self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)  # TODO: send death data
         self.chunk.remove(self)
-        self.hp = 100
+        self.hp = Player.hp
         for item in self.inventory.copy():
             item.drop()
         self.spawn(random.randint(100, self.world.width - 100), random.randint(100, self.world.height - 100))
+        # TODO: respawn after request
 
     def action(self, act, data):
         if act == 'left':
@@ -130,25 +138,11 @@ class Chunk:
             entity.update()
 
     def remove(self, obj):
-        if obj.type == 'object':
-            self.objects.remove(obj)
-        elif obj.type == 'entity':
-            self.entities.remove(obj)
-        elif obj.type == 'npc':
-            self.npc.remove(obj)
-        elif obj.type == 'player':
-            self.players.remove(obj)
+        getattr(self, obj.type).remove(obj)
 
     def add(self, obj):
         obj.chunk = self
-        if obj.type == 'object':
-            self.objects.append(obj)
-        elif obj.type == 'entity':
-            self.entities.append(obj)
-        elif obj.type == 'npc':
-            self.npc.append(obj)
-        elif obj.type == 'player':
-            self.players.append(obj)
+        getattr(self, obj.type).append(obj)
 
     def get_near_chunks(self, r=2):
         """
@@ -164,14 +158,8 @@ class Chunk:
     def get_near(self, *args, r=1):
         objects = []
         for chunk in self.get_near_chunks(r):
-            if 'players' in args:
-                objects += chunk.players
-            if 'npc' in args:
-                objects += chunk.npc
-            if 'entities' in args:
-                objects += chunk.entities
-            if 'objects' in args:
-                objects += chunk.objects
+            for arg in args:
+                objects += getattr(chunk, arg)
         return objects
 
 
@@ -211,8 +199,8 @@ class World:
         player = Player(self, user)
         player.hp = hp
         player.inventory = inventory
-        for i in range(len(player.inventory)):
-            player.inventory[i] = player.inventory[i](self, player)
+        for i, item in enumerate(player.inventory):
+            player.inventory[i] = item(self, player)
         if active_item:
             player.active_item = active_item(self, player)
         self.players.append(player)
@@ -275,6 +263,12 @@ class Game(threading.Thread):
             'size': s.get_size()
         }
 
+    @staticmethod
+    @jit
+    def get_diff(first_state, second_state):
+        # TODO: diff algo
+        pass
+
     def run(self):
         while True:
             t = time.time()
@@ -295,8 +289,8 @@ class Game(threading.Thread):
                             'hp': player.hp,
                             'id': player.user.id,
                             'name': player.user.name,
-                            'active_item': player.active_item.get_index(player.inventory)
-                            if getattr(player, 'active_item', None) else 0,
+                            'active_item': player.inventory.index(player.active_item).id
+                            if (getattr(player, 'active_item', None) in player.inventory) else -1,
                             'inventory': list(map(lambda x: x.id, player.inventory)),
                             'effects': [
                                 {
