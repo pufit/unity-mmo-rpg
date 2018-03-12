@@ -191,7 +191,7 @@ def leave(self, _):
         'x': self.me.rect.centerx,
         'y': self.me.rect.centery,
         'direction': self.me.direction,
-        'active_item': self.me.active_item.get_index(self.me.inventory)
+        'active_item': self.me.inventory.index(self.me.active_item)
         if getattr(self.me, 'active_item', None) else 0,
     }
     self.temp.users[self.name]['player_info'] = self.player_info

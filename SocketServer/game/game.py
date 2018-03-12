@@ -11,7 +11,7 @@ import pygame
 from pygame import Rect
 import random
 
-import pickle  # I'm a pickle, Morty!
+import pickle  # I turned myself into a python library, Morty!
 # TODO: save world
 
 
@@ -138,11 +138,26 @@ class Chunk:
             entity.update()
 
     def remove(self, obj):
-        getattr(self, obj.type).remove(obj)
+        self.get_group(obj.type).remove(obj)
 
     def add(self, obj):
         obj.chunk = self
-        getattr(self, obj.type).append(obj)
+        self.get_group(obj.type).append(obj)
+
+    def get_group(self, t):
+        """
+        :type t: str
+        :param t:  Type of object
+        :return: list
+        """
+        if t == 'object':
+            return self.objects
+        if t == 'entity':
+            return self.entities
+        if t == 'npc':
+            return self.npc
+        if t == 'player':
+            return self.players
 
     def get_near_chunks(self, r=2):
         """
@@ -200,9 +215,10 @@ class World:
         player.hp = hp
         player.inventory = inventory
         for i, item in enumerate(player.inventory):
-            player.inventory[i] = item(self, player)
-        if active_item:
-            player.active_item = active_item(self, player)
+            _item = item(self, player)
+            player.inventory[i] = _item
+            if i == active_item:
+                player.active_item = _item
         self.players.append(player)
         player.spawn(x, y)
         return player
@@ -223,7 +239,7 @@ class World:
             return []
         if type(item_id) == list:
             return [self.get_object_by_id(i) for i in item_id]
-        ids = list(map(lambda x: x.id, self.all_objects))
+        ids = [obj.id for obj in self.all_objects]
         return self.all_objects[ids.index(item_id)]
 
     def get_chunk_by_coord(self, x, y):
@@ -249,7 +265,7 @@ class Game(threading.Thread):
                                      active_item, user)
 
     def delete_player(self, user):
-        user.me.chunk.players.remove(user.me)
+        user.me.chunk.remove(user.me)
         self.world.players.remove(user.me)
         self.world.reload_active_chunks()
         self.channel.send({'type': 'player_left', 'data': ''})  # TODO: send data
@@ -289,9 +305,9 @@ class Game(threading.Thread):
                             'hp': player.hp,
                             'id': player.user.id,
                             'name': player.user.name,
-                            'active_item': player.inventory.index(player.active_item).id
+                            'active_item': player.inventory.index(player.active_item)
                             if (getattr(player, 'active_item', None) in player.inventory) else -1,
-                            'inventory': list(map(lambda x: x.id, player.inventory)),
+                            'inventory': [item.id for item in player.inventory],
                             'effects': [
                                 {
                                     'id': effect.id,

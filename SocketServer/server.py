@@ -56,6 +56,7 @@ class UDProtocol(DatagramProtocol, Thread):
                     raise Exception('002')
                 response = getattr(self, request)(data, address)
             except Exception as ex:
+                raise ex
                 print(request)
                 response = self.get_error_message(ex.args[0])
         else:
