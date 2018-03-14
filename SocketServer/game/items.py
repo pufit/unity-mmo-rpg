@@ -1,6 +1,5 @@
 from .models import *
 from .entities import *
-import math
 
 
 class Sword(Weapon):
@@ -44,7 +43,6 @@ class FireStaff(Weapon):
 
     def action(self, angle):
         super().action()
-        speed_y = round(FireBall.speed * math.cos(angle))
-        speed_x = round(FireBall.speed * math.sin(angle))
         fireball = FireBall(self.world, self.owner)
-        fireball.spawn(self.owner.x, self.owner.y, speed_x, speed_y)
+        fireball.speed.from_polar((FireBall.max_speed, angle))
+        fireball.spawn(self.owner.x, self.owner.y)

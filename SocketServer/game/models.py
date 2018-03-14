@@ -1,4 +1,5 @@
 from pygame import Rect
+from pygame.math import Vector2
 
 
 class Object:
@@ -19,7 +20,7 @@ class Object:
         self.world = world
 
         self.direction = 0
-        self.speed_x, self.speed_y = 0, 0
+        self.speed = Vector2(0, 0)
         self.chunk = self.world.get_chunk_by_coord(x, y)
 
     @staticmethod
@@ -48,10 +49,10 @@ class Entity(Object):
         super(Entity, self).__init__(world)
 
     def update(self):
-        if not (self.speed_x or self.speed_y):
+        if not self.speed:
             return
 
-        self.move(int(self.speed_x), int(self.speed_y))
+        self.move(self.speed)
 
     def check_collide(self, rect):
         objects = self.chunk.get_near('objects', 'players', 'npc', 'entities')
@@ -62,24 +63,19 @@ class Entity(Object):
             return False
         return True
 
-    def spawn(self, x, y, speed_x=0, speed_y=0):
+    def spawn(self, x, y):
         self.rect.center = x, y
-        self.speed_x = speed_x
-        self.speed_y = speed_y
         self.world.get_chunk_by_coord(x, y).add(self)
 
-    def move(self, x, y):
+    def move(self, speed):
         """
         Change current coordinates with collision
-        :param x: int
-        :param y: int
-        :return: None
         """
-        move_x = self.rect.move(x, 0)
+        move_x = self.rect.move(speed.x, 0)
         if not self.check_collide(move_x):
             self.rect = move_x
 
-        move_y = self.rect.move(0, y)
+        move_y = self.rect.move(0, speed.y)
         if not self.check_collide(move_y):
             self.rect = move_y
 
@@ -159,8 +155,8 @@ class Weapon(Item):
         npcs = self.owner.chunk.get_near('npc', 'players')
         npcs.remove(self.owner)
         for npc in npcs:
-            if (abs(npc.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
-                    and (abs(npc.rect.center[1] - self.rect.center[1]) < self.damage_radius):
+            if Vector2(abs(npc.rect.centerx - self.owner.rect.centerx),
+                       abs(npc.rect.centery - self.owner.rect.centery)).as_polar()[0] < self.damage_radius:
                 self.damage(npc)
 
     def damage(self, npc):
@@ -208,6 +204,8 @@ class NPC(Entity):
     touchable = False
     vision_radius = 100
     hp = 100
+
+    max_speed = 2
 
     def __init__(self, world):
         super(NPC, self).__init__(world)

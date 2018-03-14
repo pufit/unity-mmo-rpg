@@ -4,7 +4,7 @@ from .effects import *
 
 class Ball(Entity):
     id = '150'
-    speed = 5
+    max_speed = 5
     damage_value = 20
     effect = None
 

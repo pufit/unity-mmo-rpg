@@ -21,7 +21,7 @@ class Player(game.models.NPC):
     width = 40
     height = 60
 
-    speed = 2
+    max_speed = 2
     max_items = 10
     render_radius = 2
 
@@ -33,7 +33,6 @@ class Player(game.models.NPC):
         self.inventory = []
         self.active_item = None  # TODO: Fists
 
-        self.speed_x = self.speed_y = 0
         self.render_chunks = set()
 
         self.state = {}
@@ -49,18 +48,18 @@ class Player(game.models.NPC):
 
     def action(self, act, data):
         if act == 'left':
-            self.speed_x = -self.speed
+            self.speed.x = -self.max_speed
         elif act == 'right':
-            self.speed_x = self.speed
+            self.speed.x = self.max_speed
         elif act == 'up':
-            self.speed_y = -self.speed
+            self.speed.y = -self.max_speed
         elif act == 'down':
-            self.speed_y = self.speed
+            self.speed.y = self.max_speed
         elif act == 'stop':
             if data == 'horizontal':
-                self.speed_x = 0
+                self.speed.x = 0
             elif data == 'vertical':
-                self.speed_y = 0
+                self.speed.y = 0
             else:
                 raise Exception("Wrong direction")
         elif act == 'hit':
@@ -232,7 +231,7 @@ class World:
 
     @staticmethod
     def get_visible_objects(objects):
-        return list(filter(lambda x: x.visible, objects))
+        return [obj for obj in objects if obj.visible]
 
     def get_object_by_id(self, item_id):
         if item_id is []:

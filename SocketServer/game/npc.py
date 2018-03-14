@@ -1,5 +1,5 @@
 from .models import NPC
-import math
+from pygame.math import Vector2
 
 
 class EnemyNPC(NPC):
@@ -10,7 +10,7 @@ class EnemyNPC(NPC):
     damage_delay = 30
     damage_radius = 35
 
-    speed = 3
+    max_speed = 3
 
     def __init__(self, world):
         super(EnemyNPC, self).__init__(world)
@@ -20,25 +20,21 @@ class EnemyNPC(NPC):
         if self.world.tick - self.last_damage_tick < self.damage_delay:
             return
         for player in self.chunk.get_near('players'):
-            if (abs(player.rect.center[0] - self.rect.center[0]) < self.damage_radius) \
-                    and (abs(player.rect.center[1] - self.rect.center[1]) < self.damage_radius):
+            if Vector2(abs(player.rect.centerx - self.rect.centerx),
+                       abs(player.rect.centery - self.rect.centery)).as_polar()[0] < self.damage_radius:
                 self.damage(player)
         self.last_damage_tick = self.world.tick
 
     def update(self):
         super(EnemyNPC, self).update()
         for player in self.chunk.get_near('players'):
-            if (abs(player.rect.center[0] - self.rect.center[0]) < self.vision_radius) \
-                    and (abs(player.rect.center[1] - self.rect.center[1]) < self.vision_radius):
-                angle = math.acos(
-                    abs(self.rect.centery
-                        - player.rect.centery)/(math.sqrt((self.rect.centerx - player.rect.centerx)**2
-                                                + (self.rect.centery - player.rect.centery)**2))) * 180 / math.pi
-                self.speed_y = self.speed * math.cos(angle)
-                self.speed_x = self.speed * math.sin(angle)
+            polar = Vector2(abs(player.rect.centerx - self.rect.centerx),
+                            abs(player.rect.centery - self.rect.centery)).as_polar()
+            if polar[0] <= self.vision_radius:
+                self.speed.from_polar((self.max_speed, polar[1]))
                 break
         else:
-            self.speed_x, self.speed_y = 0, 0
+            self.speed.x, self.speed.y = 0, 0
 
         self.hit()
 
