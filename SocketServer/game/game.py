@@ -82,6 +82,8 @@ class Player(game.models.NPC):
                 return
             self.drop_item(self.active_item)
             self.active_item = None
+        else:
+            raise Exception(act)
 
     def drop_item(self, item):
         """
@@ -186,7 +188,7 @@ class World:
     def __init__(self, channel):
         self.channel = channel
 
-        self.players = []
+        self.players = {}
 
         self.active_chunks = set()
         self.chunks = [[Chunk(x, y, self) for y in range(self.width // Chunk.size // game.models.Block.size)]
@@ -201,7 +203,7 @@ class World:
 
     def reload_active_chunks(self):
         self.active_chunks = set()
-        for player in self.players:
+        for player in self.players.values():
             self.active_chunks |= player.render_chunks
 
     def do_tick(self):
@@ -218,7 +220,7 @@ class World:
             player.inventory[i] = _item
             if i == active_item:
                 player.active_item = _item
-        self.players.append(player)
+        self.players[user.name] = player
         player.spawn(x, y)
         return player
 
@@ -265,7 +267,7 @@ class Game(threading.Thread):
 
     def delete_player(self, user):
         user.me.chunk.remove(user.me)
-        self.world.players.remove(user.me)
+        del self.world.players[user.name]
         self.world.reload_active_chunks()
         self.channel.send({'type': 'player_left', 'data': ''})  # TODO: send data
 
@@ -288,7 +290,7 @@ class Game(threading.Thread):
         while True:
             t = time.time()
             self.world.do_tick()
-            for player in self.world.players:
+            for player in self.world.players.values():
                 entities = []
                 npc = []
                 players = []

@@ -213,6 +213,19 @@ def player_add_effect(self, data):
             self.game.field.add_effect(effect(self.me, data['ticks']))
 
 
+@perms_check(5)
+def summon(self, data):
+    obj = self.game.field.get_object_by_id(data['id'])(self.game.world)
+    obj.spawn(data['coord'][0], data['coord'][1])
+
+
+@perms_check(5)
+def give(self, data):
+    player = self.game.world.players[data['player']]
+    obj = self.game.field.get_object_by_id(data['id'])(self.game.world, player)
+    player.inventory.append(obj)
+
+
 @perms_check(0)
 def ping(_, data):
     """

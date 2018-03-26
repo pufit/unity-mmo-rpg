@@ -1,5 +1,7 @@
 from pygame import Rect
 from pygame.math import Vector2
+import math
+from random import uniform
 
 
 class Object:
@@ -33,6 +35,10 @@ class Object:
                 return main_id
         return i
 
+    def spawn(self, x, y):
+        self.rect.center = x, y
+        self.world.get_chunk_by_coord(x, y).add(self)
+
 
 class Block(Object):
     type = 'block'
@@ -44,9 +50,6 @@ class Entity(Object):
     static = False
     collide = False
     touchable = True
-
-    def __init__(self, world):
-        super(Entity, self).__init__(world)
 
     def update(self):
         if not self.speed:
@@ -62,10 +65,6 @@ class Entity(Object):
                                                  filter(lambda x: x.collide, objects)))))) or not self.collide):
             return False
         return True
-
-    def spawn(self, x, y):
-        self.rect.center = x, y
-        self.world.get_chunk_by_coord(x, y).add(self)
 
     def move(self, speed):
         """
@@ -109,8 +108,20 @@ class Entity(Object):
         pass
 
 
+class TempEntity(Entity):
+    ttl = 10
+
+    def update(self):
+        super().update()
+        self.ttl -= 1
+        if self.ttl <= 0:
+            self.chunk.remove(self)
+
+
 class Item(Entity):
     type = 'item'
+
+    stackable = True  # TODO: check name
 
     def __init__(self, world, owner):
         super(Item, self).__init__(world)
@@ -118,6 +129,7 @@ class Item(Entity):
         self.name = None
 
         self.owner = owner
+        self.stack = None
 
         self.action_delay = 15
         self.last_action_tick = 0
@@ -127,6 +139,9 @@ class Item(Entity):
             return
         self.last_action_tick = self.world.tick
 
+    def stop_action(self, *args):
+        pass
+
     def collide_action(self, players):
         if not self.dropped:
             return
@@ -135,9 +150,25 @@ class Item(Entity):
             player.get_item(self)
 
 
+class Stack:
+
+    max_count = 99
+
+    def __init__(self, item, count=1):
+        self.item = item
+        self.count = count
+
+    def add(self, n=1):
+        if self.count + n > self.max_count:
+            raise OverflowError()
+        self.count += n
+
+
 class Weapon(Item):
     width = 10
     height = 15
+
+    stackable = False
 
     damage_value = 0
     damage_radius = 70
@@ -169,6 +200,34 @@ class Weapon(Item):
         else:
             x, y = self.owner.rect.x, self.owner.rect.y + 70
         self.spawn(x, y)
+
+
+class Potion(Item):
+    drink_delay = 30
+
+    def __init__(self, world, owner):
+        super().__init__(world, owner)
+        self.is_drinking = False
+        self.drink_tick = 0
+
+    def update(self):
+        super().update()
+        if self.is_drinking:
+            self.drink_tick += 1
+
+        if self.drink_tick >= self.drink_delay:
+            self.drink_tick = 0
+            self.drink_action()
+
+    def drink_action(self, *args):
+        pass
+
+    def action(self, *_):
+        self.is_drinking = True
+
+    def stop_action(self, *_):
+        self.is_drinking = False
+        self.drink_tick = 0
 
 
 class Effect:
@@ -220,3 +279,60 @@ class NPC(Entity):
 
     def kill(self):
         self.chunk.npc.remove(self)
+
+
+class EnemyNPC(NPC):
+    hp = 50
+
+    damage_value = 5
+    damage_delay = 30
+    damage_radius = 3
+
+    loot = {}  # id: [freq, count]
+
+    max_speed = 3
+
+    def __init__(self, world):
+        super(EnemyNPC, self).__init__(world)
+        self.last_damage_tick = 0
+
+    def hit(self):
+        if self.world.tick - self.last_damage_tick < self.damage_delay:
+            return
+        for player in self.chunk.get_near('players'):
+            if Vector2(abs(player.rect.centerx - self.rect.centerx),
+                       abs(player.rect.centery - self.rect.centery)).length() < self.damage_radius:
+                self.damage(player)
+        self.last_damage_tick = self.world.tick
+
+    def update(self):
+        super(EnemyNPC, self).update()
+        for player in self.chunk.get_near('players'):
+            polar = Vector2(abs(player.rect.centerx - self.rect.centerx),
+                            abs(player.rect.centery - self.rect.centery)).as_polar()
+            if polar[0] <= self.vision_radius:
+                self.speed.from_polar((self.max_speed, polar[1]))
+                break
+        else:
+            self.speed.x, self.speed.y = 0, 0
+
+        self.hit()
+
+    def damage(self, npc):
+        npc.hp -= self.damage_value
+
+    def kill(self):
+        for item_id, param in zip(self.loot, self.loot.values()):
+            item = self.world.get_object_by_id(item_id)  # TODO: drop (need Stack structure)
+        super().kill()
+
+
+def my_random(count, freq):
+    return int(sigmoid(uniform(1/freq, 1) - 1) * 2 * count)
+
+
+def sigmoid(z):
+    """Sigmoid function"""
+    if z > 100:
+        return 0
+    return 1.0 / (1.0 + math.exp(z))

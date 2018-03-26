@@ -1,4 +1,4 @@
-from .models import Entity
+from .models import Entity, TempEntity, Item
 from .effects import *
 
 
@@ -22,6 +22,10 @@ class Ball(Entity):
             if self.effect:
                 effect = self.effect(target)
                 effect.ticks = 5
+
+
+class Arrow(TempEntity, Item):
+    id = '52'
 
 
 class FireBall(Ball):
