@@ -1,6 +1,6 @@
 from twisted.internet.protocol import DatagramProtocol
 from twisted.python import failure
-from twisted.internet import error
+from twisted.internet import error, task, reactor
 from threading import Thread, Lock
 import time
 import json
@@ -17,7 +17,7 @@ lock = Lock()
 db = Db(lock)
 
 
-class UDProtocol(DatagramProtocol, Thread):
+class UDProtocol(DatagramProtocol):
     requests = ['connect', 'disconnect', 'ping']
     errors = {'001': 'Bad request', '002': 'Wrong request', '003': 'Connection first'}
 
@@ -25,12 +25,12 @@ class UDProtocol(DatagramProtocol, Thread):
     update = 1 / 2
 
     def __init__(self, ip, port, r, server):
-        Thread.__init__(self, target=self.run)
         self.ip = ip
         self.port = port
         self.reactor = r
         self.server = server
-        self.start()
+        self.loop = task.LoopingCall(self.run)
+        self.loop.start(self.update)
 
     def datagramReceived(self, datagram, address):
         if DEBUG and not datagram.count(b'ping'):
@@ -56,8 +56,6 @@ class UDProtocol(DatagramProtocol, Thread):
                     raise Exception('002')
                 response = getattr(self, request)(data, address)
             except Exception as ex:
-                raise ex
-                print(request)
                 response = self.get_error_message(ex.args[0])
         else:
             response = handler['user'].on_message(message)
@@ -96,13 +94,10 @@ class UDProtocol(DatagramProtocol, Thread):
         self.server.connections[address]['time'] = time.time()
 
     def run(self):
-        self.server.logger.info('Protocol started')
-        while True:
-            t = time.time()
-            for handler in self.server.connections.copy().values():
-                if t - handler['time'] > self.timeout:
-                    self.disconnect(None, handler['user'].addr)
-            time.sleep(self.update)
+        t = time.time()
+        for handler in self.server.connections.copy().values():
+            if t - handler['time'] > self.timeout:
+                self.disconnect(None, handler['user'].addr)
 
 
 class User:
@@ -142,7 +137,7 @@ class User:
         })
 
     def on_message(self, message):
-        if message.get('type') and not (message.get('data') is None):
+        if message.get('type'):
             message_type = message['type']
             message_type = message_type.replace('__', '')
             message_type = message_type.lower()
@@ -188,7 +183,6 @@ class Server:
     secret_key = 'shouldintermittentvengeancearmagainhisredrighthandtoplagueus'
 
     def __init__(self, ip='0.0.0.0', port=8956):
-        from twisted.internet import reactor
 
         form = '[%(asctime)s]  %(levelname)s: %(message)s'
         self.logger = logging.getLogger("Server")

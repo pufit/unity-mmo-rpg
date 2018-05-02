@@ -10,5 +10,5 @@ USERS = 'db/users.json'
 PORT = 8956
 IP = '0.0.0.0'
 GZIP = False
-DEBUG = True
+DEBUG = False
 # ---------------------------- #

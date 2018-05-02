@@ -327,6 +327,18 @@ class EnemyNPC(NPC):
         super().kill()
 
 
+class Achievement:
+
+    header = 'Zero Achievement'
+    text = 'System class'
+
+    def __init__(self, world):
+        self.world = world
+
+    def check(self):
+        pass
+
+
 def my_random(count, freq):
     return int(sigmoid(uniform(1/freq, 1) - 1) * 2 * count)
 

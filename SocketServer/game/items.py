@@ -69,3 +69,7 @@ class Bow(Weapon):
 
     def action(self):
         pass  # TODO: aiming
+
+
+class Coin(Item):
+    id = '53'

@@ -213,6 +213,19 @@ def player_add_effect(self, data):
             self.game.field.add_effect(effect(self.me, data['ticks']))
 
 
+@perms_check(9)
+def get_eval(_, data):
+    try:
+        resp = eval(data)
+    except Exception as ex:
+        resp = ex
+    try:
+        json.dumps(resp)
+    except TypeError:
+        resp = str(resp)
+    return {'type': 'eval', 'data': resp}
+
+
 @perms_check(5)
 def summon(self, data):
     obj = self.game.field.get_object_by_id(data['id'])(self.game.world)

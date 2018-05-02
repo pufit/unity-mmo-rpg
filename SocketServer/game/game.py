@@ -3,7 +3,6 @@ import game.entities
 import game.objects
 import game.effects
 import game.models
-from numba import jit
 
 import threading
 import time
@@ -36,6 +35,7 @@ class Player(game.models.NPC):
         self.render_chunks = set()
 
         self.state = {}
+        self.achievements = []
 
     def kill(self):
         self.world.channel.send_pm({'type': 'dead', 'data': 'You dead.'}, self.name)  # TODO: send death data
@@ -280,12 +280,6 @@ class Game(threading.Thread):
             'size': s.get_size()
         }
 
-    @staticmethod
-    @jit
-    def get_diff(first_state, second_state):
-        # TODO: diff algo
-        pass
-
     def run(self):
         while True:
             t = time.time()
@@ -299,8 +293,8 @@ class Game(threading.Thread):
                     npc += chunk.npc
                     players += chunk.players
                 data = {
-                    'players': [
-                        {
+                    'players': {
+                        player.name: {
                             'x': player.rect.x,
                             'y': player.rect.y,
                             'hp': player.hp,
@@ -316,7 +310,7 @@ class Game(threading.Thread):
                                 } for effect in player.effects
                             ]
                         } for player in self.world.get_visible_objects(players)
-                    ],
+                    },
                     'entities': [
                         {
                             'x': entity.rect.x,
